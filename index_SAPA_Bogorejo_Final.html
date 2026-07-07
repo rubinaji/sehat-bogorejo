@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Puseksmas Bogorejo - Pendaftaran</title>
+
+<style>
+
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+font-family:Arial,sans-serif;
+}
+
+body{
+background:linear-gradient(135deg,#0f766e,#2563eb);
+min-height:100vh;
+padding:20px;
+}
+
+.container{
+max-width:500px;
+margin:auto;
+background:white;
+border-radius:30px;
+overflow:hidden;
+box-shadow:0 15px 40px rgba(0,0,0,.2);
+}
+
+.header{
+padding:30px;
+text-align:center;
+background:linear-gradient(135deg,#16a34a,#22c55e);
+color:white;
+}
+
+.logo{
+font-size:60px;
+margin-bottom:10px;
+}
+
+.header h1{
+font-size:28px;
+}
+
+.header p{
+margin-top:10px;
+opacity:.9;
+}
+
+.content{
+padding:25px;
+}
+
+.label{
+font-weight:bold;
+margin-top:20px;
+margin-bottom:10px;
+display:block;
+color:#334155;
+}
+
+.sapaan{
+display:grid;
+grid-template-columns:1fr 1fr;
+gap:10px;
+}
+
+.sapaan button{
+padding:15px;
+border:none;
+border-radius:15px;
+background:#e2e8f0;
+font-size:16px;
+cursor:pointer;
+}
+
+.sapaan button.active{
+background:#16a34a;
+color:white;
+}
+
+input,select{
+width:100%;
+padding:16px;
+border-radius:15px;
+border:1px solid #cbd5e1;
+font-size:16px;
+}
+
+.submit{
+width:100%;
+padding:18px;
+margin-top:30px;
+border:none;
+border-radius:18px;
+background:#16a34a;
+color:white;
+font-size:20px;
+font-weight:bold;
+cursor:pointer;
+}
+
+.submit:disabled{
+background:#94a3b8;
+}
+
+#status{
+display:none;
+margin-top:20px;
+padding:15px;
+background:#dcfce7;
+border-radius:15px;
+text-align:center;
+font-weight:bold;
+color:#166534;
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+<div class="header">
+<div class="logo">🏥</div>
+<h1>Puskesmas Bogorejo</h1>
+<p>Pendaftaran Pasien</p>
+</div>
+
+<div class="content">
+
+<label class="label">Sapaan</label>
+
+<div class="sapaan">
+<button class="active">Bapak</button>
+<button>Ibu</button>
+<button>Anak</button>
+<button>Saudara</button>
+<button>Saudari</button>
+</div>
+
+<label class="label">Nomor BPJS / No. RM (Opsional)</label>
+<input type="text" id="nokartu" placeholder="Nomor BPJS / Rekam Medis">
+
+<label class="label">Nama Pasien</label>
+<input type="text" id="nama" placeholder="Masukkan nama pasien">
+
+<label class="label">Umur</label>
+<input type="number" id="umur" placeholder="Masukkan umur">
+
+<label class="label">Desa</label>
+<input type="text" id="desa" placeholder="Masukkan desa">
+
+<label class="label">Keluhan</label>
+<textarea id="keluhan" style="width:100%;padding:16px;border-radius:15px;border:1px solid #cbd5e1;font-size:16px;min-height:90px;" placeholder="Masukkan keluhan pasien"></textarea>
+
+<label class="label">Klaster Tujuan</label>
+
+<select id="klaster">
+<option>Klaster 3 Dewasa dan Lansia</option>
+<option>Klaster II Ibu dan Anak (KIA)</option>
+<option>Klaster II Anak dan Remaja (MTBS)</option>
+<option>Klaster IV Penyakit Menular</option>
+<option>Laboratorium</option>
+<option>Apotek</option>
+<option>Gizi</option>
+<option>Imunisasi</option>
+<option>PONED</option>
+<option>Konseling</option>
+<option>Lintas Klaster (Gawat Darurat)</option>
+<option>Lintas Klaster (Gigi dan Mulut)</option>
+</select>
+
+<label class="label">Jenis Pembayaran</label>
+<select id="bayar">
+<option>BPJS PBI</option>
+<option>BPJS Non PBI</option>
+<option>Umum</option>
+<option>Gratis</option>
+</select>
+
+<button class="submit" id="btnSimpan">
+SIMPAN DAN KIRIM
+</button>
+
+<div id="status"></div>
+
+</div>
+</div>
+
+<script>
+
+const API_URL="https://script.google.com/macros/s/AKfycbwBhOezrpPhLmFPeD2QG6nS7a_wjsAznK9eGCzKP2DdQ7bza93656Y4IvIxLYjaihUonQ/exec";
+
+let sapaan="Bapak";
+
+document.querySelectorAll(".sapaan button").forEach(btn=>{
+
+btn.onclick=function(){
+
+document.querySelectorAll(".sapaan button")
+.forEach(x=>x.classList.remove("active"));
+
+this.classList.add("active");
+
+sapaan=this.innerText;
+
+}
+
+});
+
+document.getElementById("btnSimpan").onclick=async()=>{
+
+const nokartu=document.getElementById("nokartu").value.trim();
+const nama=document.getElementById("nama").value.trim();
+const umur=document.getElementById("umur").value.trim();
+const desa=document.getElementById("desa").value.trim();
+const keluhan=document.getElementById("keluhan").value.trim();
+const klaster=document.getElementById("klaster").value;
+const bayar=document.getElementById("bayar").value;
+
+if(!nama || !desa){
+alert("Nama dan desa wajib diisi");
+return;
+}
+
+const btn=document.getElementById("btnSimpan");
+
+btn.disabled=true;
+btn.innerText="MENYIMPAN...";
+
+try{
+
+const response=await fetch(API_URL,{
+method:"POST",
+body:JSON.stringify({
+aksi:"daftar_langsung",
+nokartu:nokartu,
+sapaan:sapaan,
+nama:nama,
+umur:umur,
+desa:desa,
+keluhan:keluhan,
+klaster:klaster,
+bayar:bayar
+})
+});
+
+const result=await response.json();
+
+document.getElementById("status").style.display="block";
+
+document.getElementById("status").innerHTML=
+"✅ "+sapaan+" "+nama+
+" berhasil dikirim ke "+
+klaster;
+
+document.getElementById("nama").value="";
+document.getElementById("desa").value="";
+
+}
+catch(err){
+
+console.log(err);
+
+alert("Gagal menyimpan data");
+
+}
+
+btn.disabled=false;
+btn.innerText="SIMPAN DAN KIRIM";
+
+}
+
+</script>
+
+</body>
+</html>

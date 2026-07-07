@@ -1,0 +1,831 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+
+<meta charset="UTF-8">
+
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+
+<title>Operator SAPA Bogorejo</title>
+
+<style>
+
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+font-family:'Segoe UI',sans-serif;
+}
+
+body{
+
+background:#eef4f8;
+
+height:100vh;
+
+overflow:hidden;
+
+}
+
+/* ===========================
+HEADER
+=========================== */
+
+header{
+
+height:70px;
+
+background:#0f766e;
+
+display:flex;
+
+justify-content:space-between;
+
+align-items:center;
+
+padding:0 25px;
+
+color:white;
+
+box-shadow:0 5px 20px rgba(0,0,0,.15);
+
+}
+
+header h1{
+
+font-size:30px;
+
+font-weight:bold;
+
+}
+
+#jam{
+
+font-size:18px;
+
+}
+
+/* ===========================
+LAYOUT
+=========================== */
+
+.container{
+
+display:grid;
+
+grid-template-columns:
+
+340px
+
+1fr
+
+330px;
+
+height:calc(100vh - 70px);
+
+}
+
+/* ===========================
+KIRI
+=========================== */
+
+.left{
+
+background:white;
+
+padding:20px;
+
+overflow:auto;
+
+border-right:1px solid #ddd;
+
+}
+
+.left h2{
+
+margin-bottom:20px;
+
+color:#0f172a;
+
+}
+
+#jumlah{
+
+color:#16a34a;
+
+font-weight:bold;
+
+}
+
+.antrian{
+
+padding:16px;
+
+background:#f8fafc;
+
+border-radius:15px;
+
+margin-bottom:12px;
+
+cursor:pointer;
+
+transition:.25s;
+
+border:2px solid transparent;
+
+}
+
+.antrian:hover{
+
+background:#dcfce7;
+
+border-color:#22c55e;
+
+}
+
+.antrian.active{
+
+background:#16a34a;
+
+color:white;
+
+}
+
+/* ===========================
+TENGAH
+=========================== */
+
+.center{
+
+display:flex;
+
+justify-content:center;
+
+align-items:center;
+
+padding:30px;
+
+}
+
+.card{
+
+width:100%;
+
+max-width:720px;
+
+background:white;
+
+padding:35px;
+
+border-radius:25px;
+
+box-shadow:0 10px 30px rgba(0,0,0,.15);
+
+}
+
+.status{
+
+display:inline-block;
+
+padding:10px 25px;
+
+background:#16a34a;
+
+color:white;
+
+border-radius:50px;
+
+font-size:18px;
+
+margin-bottom:20px;
+
+}
+
+#nama{
+
+font-size:48px;
+
+font-weight:bold;
+
+margin-bottom:10px;
+
+color:#0f172a;
+
+}
+
+#desa{
+
+font-size:28px;
+
+color:#64748b;
+
+margin-bottom:25px;
+
+}
+
+.info{
+
+width:100%;
+
+border-collapse:collapse;
+
+}
+
+.info td{
+
+padding:12px;
+
+font-size:19px;
+
+border-bottom:1px solid #eee;
+
+}
+
+.info td:first-child{
+
+width:170px;
+
+font-weight:bold;
+
+}
+
+/* ===========================
+KANAN
+=========================== */
+
+.right{
+
+background:white;
+
+padding:20px;
+
+overflow:auto;
+
+border-left:1px solid #ddd;
+
+}
+
+.right h2{
+
+margin-bottom:15px;
+
+color:#0f172a;
+
+}
+
+.btn{
+
+width:100%;
+
+padding:15px;
+
+margin-bottom:12px;
+
+border:none;
+
+border-radius:14px;
+
+font-size:18px;
+
+font-weight:bold;
+
+cursor:pointer;
+
+color:white;
+
+transition:.2s;
+
+}
+
+.btn:hover{
+
+transform:scale(1.02);
+
+}
+
+.next{background:#16a34a;}
+
+.repeat{background:#2563eb;}
+
+.done{background:#f59e0b;}
+
+.skip{background:#dc2626;}
+
+.lab{background:#7c3aed;}
+
+.apotek{background:#0891b2;}
+
+.gizi{background:#14b8a6;}
+
+.imunisasi{background:#0284c7;}
+
+.kia{background:#ec4899;}
+
+.mtbs{background:#9333ea;}
+
+.pm{background:#ea580c;}
+
+.poned{background:#475569;}
+
+.gigi{background:#be123c;}
+
+.konseling{background:#6366f1;}
+
+</style>
+
+</head>
+
+<body>
+
+<header>
+
+<h1 id="judul">
+
+🏥 SAPA BOGOREJO
+
+</h1>
+
+<div id="jam">
+
+00:00:00
+
+</div>
+
+</header>
+
+<div class="container">
+
+<!-- =======================
+PANEL KIRI
+======================== -->
+
+<div class="left">
+
+<h2>
+
+Daftar Antrian
+
+(<span id="jumlah">0</span>)
+
+</h2>
+
+<div id="list">
+
+Memuat data...
+
+</div>
+
+</div>
+
+<!-- =======================
+PANEL TENGAH
+======================== -->
+
+<div class="center">
+
+<div class="card">
+
+<div class="status">
+
+SEDANG DIPANGGIL
+
+</div>
+
+<div id="nama">
+
+BELUM ADA PASIEN
+
+</div>
+
+<div id="desa">
+
+-
+
+</div>
+
+<table class="info">
+
+<tr>
+
+<td>ID</td>
+
+<td id="id">-</td>
+
+</tr>
+
+<tr>
+
+<td>Keluhan</td>
+
+<td id="keluhan">-</td>
+
+</tr>
+
+<tr>
+
+<td>Klaster</td>
+
+<td id="klaster">-</td>
+
+</tr>
+
+<tr>
+
+<td>Status</td>
+
+<td id="status">Menunggu</td>
+
+</tr>
+
+</table>
+
+</div>
+
+</div>
+
+<!-- =======================
+PANEL KANAN
+======================== -->
+
+<div class="right">
+
+<h2>Aksi</h2>
+
+<button class="btn next">
+
+▶ Panggil Berikutnya
+
+</button>
+
+<button class="btn repeat">
+
+🔁 Panggil Ulang
+
+</button>
+
+<button class="btn done">
+
+✅ Selesai
+
+</button>
+
+<button class="btn skip">
+
+❌ Tidak Hadir
+
+</button>
+
+<hr style="margin:20px 0">
+
+<h2>Rujuk Internal</h2>
+
+<button class="btn lab">🧪 Laboratorium</button>
+
+<button class="btn apotek">💊 Apotek</button>
+
+<button class="btn gizi">🥗 Gizi</button>
+
+<button class="btn imunisasi">💉 Imunisasi</button>
+
+<button class="btn kia">👩 KIA</button>
+
+<button class="btn mtbs">👦 MTBS</button>
+
+<button class="btn pm">🦠 Penyakit Menular</button>
+
+<button class="btn poned">🚑 PONED</button>
+
+<button class="btn gigi">🦷 Gigi</button>
+
+<button class="btn konseling">🗣 Konseling</button>
+
+</div>
+
+</div>
+<script>
+
+const API_URL="https://script.google.com/macros/s/AKfycbwBhOezrpPhLmFPeD2QG6nS7a_wjsAznK9eGCzKP2DdQ7bza93656Y4IvIxLYjaihUonQ/exec";
+
+const params=new URLSearchParams(window.location.search);
+const KLASTER=params.get("klaster") || "Klaster 3 Dewasa dan Lansia";
+
+document.getElementById("judul").innerHTML="🏥 SAPA BOGOREJO - "+KLASTER;
+
+let pasienAktif=null;
+
+/* ===========================
+   JAM
+=========================== */
+
+function updateJam(){
+
+const now=new Date();
+
+document.getElementById("jam").innerHTML=
+now.toLocaleDateString("id-ID")+" "+
+now.toLocaleTimeString("id-ID");
+
+}
+
+updateJam();
+setInterval(updateJam,1000);
+
+/* ===========================
+   LOAD DATA
+=========================== */
+
+async function loadData(){
+
+try{
+
+const res=await fetch(API_URL);
+const data=await res.json();
+
+const list=data.filter(item=>
+item.klaster===KLASTER &&
+item.status==="Menunggu Klaster"
+);
+
+document.getElementById("jumlah").innerHTML=list.length;
+
+let html="";
+
+list.forEach(item=>{
+
+html+=`
+<div class="antrian"
+onclick="pilih(${item.row},this)">
+
+<b>${item.sapaan} ${item.nama}</b><br>
+
+<small>Desa ${item.desa}</small>
+
+</div>
+`;
+
+});
+
+if(html===""){
+html="<center><br>Tidak ada antrian.</center>";
+}
+
+document.getElementById("list").innerHTML=html;
+
+}catch(err){
+
+console.error(err);
+
+}
+
+}
+
+/* ===========================
+   PILIH PASIEN
+=========================== */
+
+async function pilih(row,el){
+
+document.querySelectorAll(".antrian")
+.forEach(x=>x.classList.remove("active"));
+
+el.classList.add("active");
+
+const res=await fetch(API_URL);
+
+const data=await res.json();
+
+pasienAktif=data.find(x=>x.row==row);
+
+if(!pasienAktif) return;
+
+document.getElementById("id").innerHTML=
+pasienAktif.id;
+
+document.getElementById("nama").innerHTML=
+pasienAktif.sapaan+" "+pasienAktif.nama;
+
+document.getElementById("desa").innerHTML=
+"Desa "+pasienAktif.desa;
+
+document.getElementById("keluhan").innerHTML=
+pasienAktif.keluhan || "-";
+
+document.getElementById("klaster").innerHTML=
+pasienAktif.klaster;
+
+document.getElementById("status").innerHTML=
+pasienAktif.status;
+
+}
+
+/* ===========================
+   UPDATE STATUS
+=========================== */
+
+async function updateStatus(aksi){
+
+if(!pasienAktif){
+
+alert("Silakan pilih pasien terlebih dahulu.");
+
+return;
+
+}
+
+await fetch(API_URL,{
+
+method:"POST",
+
+body:JSON.stringify({
+
+aksi:aksi,
+
+row:pasienAktif.row
+
+})
+
+});
+
+await loadData();
+
+}
+
+loadData();
+
+setInterval(loadData,3000);
+
+</script>
+<script>
+
+/* ==========================================
+   SUARA PEMANGGILAN
+========================================== */
+
+function suara(){
+
+    if(!pasienAktif) return;
+
+    speechSynthesis.cancel();
+
+    let teks =
+    pasienAktif.sapaan + " " +
+    pasienAktif.nama +
+    " dari Desa " +
+    pasienAktif.desa +
+    " dipersilakan menuju ruang " +
+    pasienAktif.klaster;
+
+    let u = new SpeechSynthesisUtterance(teks);
+
+    u.lang = "id-ID";
+    u.rate = 0.9;
+    u.pitch = 1;
+
+    speechSynthesis.speak(u);
+
+}
+
+
+/* ==========================================
+   PINDAH KLASTER
+========================================== */
+
+async function rujuk(klasterBaru){
+
+    if(!pasienAktif){
+
+        alert("Pilih pasien terlebih dahulu.");
+
+        return;
+
+    }
+
+    await fetch(API_URL,{
+
+        method:"POST",
+
+        body:JSON.stringify({
+
+            aksi:"pindah_klaster",
+
+            row:pasienAktif.row,
+
+            klaster:klasterBaru
+
+        })
+
+    });
+
+    alert(
+
+        pasienAktif.sapaan+
+
+        " "+
+
+        pasienAktif.nama+
+
+        " berhasil dipindahkan ke "+
+
+        klasterBaru
+
+    );
+
+    pasienAktif=null;
+
+    document.getElementById("id").innerHTML="-";
+    document.getElementById("nama").innerHTML="BELUM ADA PASIEN";
+    document.getElementById("desa").innerHTML="-";
+    document.getElementById("keluhan").innerHTML="-";
+    document.getElementById("klaster").innerHTML="-";
+    document.getElementById("status").innerHTML="Menunggu";
+
+    loadData();
+
+}
+
+
+/* ==========================================
+   TOMBOL AKSI
+========================================== */
+
+document.querySelector(".next").onclick = async()=>{
+
+    await updateStatus("panggil");
+
+    suara();
+
+};
+
+document.querySelector(".repeat").onclick = ()=>{
+
+    suara();
+
+};
+
+document.querySelector(".done").onclick = async()=>{
+
+    await updateStatus("selesai");
+
+    pasienAktif=null;
+
+};
+
+document.querySelector(".skip").onclick = async()=>{
+
+    await updateStatus("lewati");
+
+    pasienAktif=null;
+
+};
+
+
+/* ==========================================
+   TOMBOL RUJUK
+========================================== */
+
+document.querySelector(".lab").onclick=()=>rujuk("Laboratorium");
+
+document.querySelector(".apotek").onclick=()=>rujuk("Apotek");
+
+document.querySelector(".gizi").onclick=()=>rujuk("Gizi");
+
+document.querySelector(".imunisasi").onclick=()=>rujuk("Imunisasi");
+
+document.querySelector(".kia").onclick=()=>rujuk("Klaster II Ibu dan Anak (KIA)");
+
+document.querySelector(".mtbs").onclick=()=>rujuk("Klaster II Anak dan Remaja (MTBS)");
+
+document.querySelector(".pm").onclick=()=>rujuk("Klaster IV Penyakit Menular");
+
+document.querySelector(".poned").onclick=()=>rujuk("PONED");
+
+document.querySelector(".gigi").onclick=()=>rujuk("Lintas Klaster (Gigi dan Mulut)");
+
+document.querySelector(".konseling").onclick=()=>rujuk("Konseling");
+
+
+/* ==========================================
+   ANIMASI
+========================================== */
+
+setInterval(()=>{
+
+    let nama=document.getElementById("nama");
+
+    nama.style.transition=".2s";
+
+    nama.style.transform="scale(1.03)";
+
+    setTimeout(()=>{
+
+        nama.style.transform="scale(1)";
+
+    },250);
+
+},5000);
+
+</script>
+
+</body>
+
+</html>
