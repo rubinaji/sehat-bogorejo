@@ -1,0 +1,826 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>SEHAT Bogorejo - Display</title>
+
+<style>
+
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+font-family:Segoe UI,Arial,sans-serif;
+}
+
+body{
+
+background:#eef3f8;
+
+overflow:hidden;
+
+}
+
+/*=========================
+HEADER
+=========================*/
+
+header{
+
+height:90px;
+
+background:linear-gradient(90deg,#0f766e,#16a34a);
+
+display:flex;
+
+justify-content:space-between;
+
+align-items:center;
+
+padding:0 35px;
+
+color:white;
+
+box-shadow:0 4px 15px rgba(0,0,0,.2);
+
+}
+
+.logo{
+
+display:flex;
+
+align-items:center;
+
+gap:20px;
+
+}
+
+.logo img{
+
+width:60px;
+
+height:60px;
+
+}
+
+.logo h1{
+
+font-size:38px;
+
+font-weight:bold;
+
+}
+
+.logo p{
+
+font-size:18px;
+
+opacity:.9;
+
+margin-top:5px;
+
+}
+
+#datetime{
+
+font-size:22px;
+
+font-weight:bold;
+
+text-align:right;
+
+line-height:1.6;
+
+}
+
+/*=========================
+LAYOUT
+=========================*/
+
+.container{
+
+height:calc(100vh - 90px);
+
+display:grid;
+
+grid-template-rows:
+
+1fr
+
+270px
+
+45px;
+
+}
+
+/*=========================
+PANEL PASIEN
+=========================*/
+
+.main{
+
+padding:20px;
+
+display:flex;
+
+justify-content:center;
+
+align-items:center;
+
+}
+
+.card{
+
+width:100%;
+
+height:100%;
+
+background:white;
+
+border-radius:25px;
+
+box-shadow:0 8px 30px rgba(0,0,0,.15);
+
+display:flex;
+
+flex-direction:column;
+
+justify-content:center;
+
+align-items:center;
+
+}
+
+.label{
+
+font-size:34px;
+
+font-weight:bold;
+
+color:#64748b;
+
+margin-bottom:20px;
+
+letter-spacing:2px;
+
+}
+
+#nomor{
+
+font-size:28px;
+
+font-weight:bold;
+
+color:#dc2626;
+
+margin-bottom:20px;
+
+}
+
+#nama{
+
+font-size:82px;
+
+font-weight:bold;
+
+color:#0f172a;
+
+text-align:center;
+
+transition:.4s;
+
+}
+
+#desa{
+
+margin-top:15px;
+
+font-size:34px;
+
+color:#475569;
+
+}
+
+#ruang{
+
+margin-top:30px;
+
+font-size:42px;
+
+font-weight:bold;
+
+color:#ea580c;
+
+}
+
+.fade{
+
+animation:fade .5s;
+
+}
+
+@keyframes fade{
+
+from{
+
+opacity:0;
+
+transform:scale(.9);
+
+}
+
+to{
+
+opacity:1;
+
+transform:scale(1);
+
+}
+
+}
+
+</style>
+
+</head>
+
+<body>
+
+<header>
+
+<div class="logo">
+
+<div style="font-size:55px">
+
+🏥
+
+</div>
+
+<div>
+
+<h1>
+
+SEHAT BOGOREJO
+
+</h1>
+
+<p>
+
+Sistem Elektronik Antrian dan Pelayanan Terpadu
+
+</p>
+
+</div>
+
+</div>
+
+<div id="datetime">
+
+00 Januari 2026
+
+<br>
+
+00:00:00
+
+</div>
+
+</header>
+
+<div class="container">
+
+<!--=========================
+PANEL PASIEN
+==========================-->
+
+<div class="main">
+
+<div class="card">
+
+<div class="label">
+
+SEDANG DIPANGGIL
+
+</div>
+
+<div id="nomor">
+
+-
+
+</div>
+
+<div id="nama">
+
+BELUM ADA PASIEN
+
+</div>
+
+<div id="desa">
+
+-
+
+</div>
+
+<div id="ruang">
+
+-
+
+</div>
+
+</div>
+
+</div>
+<!--=========================
+DAFTAR ANTRIAN
+==========================-->
+
+<div class="bottom">
+
+<div class="title">
+
+📋 DAFTAR ANTRIAN
+
+</div>
+
+<div id="listAntrian">
+
+<div class="item">
+
+<div class="urut">
+
+1
+
+</div>
+
+<div class="pasien">
+
+Memuat data...
+
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+<!--=========================
+RUNNING TEXT
+==========================-->
+
+<div class="footer">
+
+<div class="running">
+
+<div id="marquee">
+
+📢 Selamat datang di Puskesmas Bogorejo • Mohon siapkan BPJS atau KTP • Jagalah kebersihan • Gunakan masker apabila batuk • Terima kasih atas kesabaran Anda • SEHAT Bogorejo
+
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+<style>
+
+/*=========================
+ANTRIAN
+=========================*/
+
+.bottom{
+
+background:#ffffff;
+
+border-top:6px solid #16a34a;
+
+padding:18px;
+
+overflow:hidden;
+
+}
+
+.title{
+
+font-size:28px;
+
+font-weight:bold;
+
+text-align:center;
+
+margin-bottom:15px;
+
+color:#0f172a;
+
+}
+
+#listAntrian{
+
+display:flex;
+
+flex-direction:column;
+
+gap:10px;
+
+}
+
+.item{
+
+display:grid;
+
+grid-template-columns:70px 1fr;
+
+align-items:center;
+
+padding:12px 18px;
+
+background:#f8fafc;
+
+border-radius:12px;
+
+font-size:24px;
+
+transition:.4s;
+
+}
+
+.item:nth-child(even){
+
+background:#ecfeff;
+
+}
+
+.urut{
+
+font-weight:bold;
+
+font-size:28px;
+
+color:#0f766e;
+
+}
+
+.pasien{
+
+font-weight:600;
+
+color:#334155;
+
+}
+
+/*=========================
+RUNNING TEXT
+=========================*/
+
+.footer{
+
+background:#dc2626;
+
+height:45px;
+
+display:flex;
+
+align-items:center;
+
+overflow:hidden;
+
+}
+
+.running{
+
+width:100%;
+
+overflow:hidden;
+
+white-space:nowrap;
+
+}
+
+#marquee{
+
+display:inline-block;
+
+padding-left:100%;
+
+font-size:22px;
+
+font-weight:bold;
+
+color:white;
+
+animation:marquee 25s linear infinite;
+
+}
+
+@keyframes marquee{
+
+0%{
+
+transform:translateX(0);
+
+}
+
+100%{
+
+transform:translateX(-100%);
+
+}
+
+}
+
+/*=========================
+RESPONSIVE
+=========================*/
+
+@media(max-width:1200px){
+
+#nama{
+
+font-size:64px;
+
+}
+
+#desa{
+
+font-size:28px;
+
+}
+
+#ruang{
+
+font-size:34px;
+
+}
+
+.item{
+
+font-size:20px;
+
+}
+
+}
+
+</style>
+<script>
+
+const API_URL="https://script.google.com/macros/s/AKfycbwBhOezrpPhLmFPeD2QG6nS7a_wjsAznK9eGCzKP2DdQ7bza93656Y4IvIxLYjaihUonQ/exec";
+
+const params=new URLSearchParams(window.location.search);
+
+const KLASTER=params.get("klaster") || "Klaster 3 Dewasa dan Lansia";
+
+let semuaData=[];
+let listAntrian=[];
+let indexTampil=0;
+let pasienAktifID="";
+
+/*==================================
+JAM
+==================================*/
+
+function updateJam(){
+
+    const now=new Date();
+
+    const tanggal=now.toLocaleDateString("id-ID",{
+        weekday:"long",
+        day:"2-digit",
+        month:"long",
+        year:"numeric"
+    });
+
+    const jam=now.toLocaleTimeString("id-ID");
+
+    document.getElementById("datetime").innerHTML=
+        tanggal+"<br>"+jam;
+
+}
+
+updateJam();
+
+setInterval(updateJam,1000);
+
+
+/*==================================
+LOAD DATA
+==================================*/
+
+async function loadData(){
+
+    try{
+
+        const res=await fetch(API_URL);
+
+        semuaData=await res.json();
+
+        tampilPasien();
+
+        siapkanAntrian();
+
+    }
+
+    catch(err){
+
+        console.log(err);
+
+    }
+
+}
+
+
+/*==================================
+PASIEN DIPANGGIL
+==================================*/
+
+function tampilPasien(){
+
+    const pasien=semuaData.find(p=>
+
+        p.klaster===KLASTER &&
+
+        p.status==="Dipanggil"
+
+    );
+
+    if(!pasien){
+
+        document.getElementById("nomor").innerHTML="-";
+
+        document.getElementById("nama").innerHTML="BELUM ADA PASIEN";
+
+        document.getElementById("desa").innerHTML="-";
+
+        document.getElementById("ruang").innerHTML=KLASTER;
+
+        return;
+
+    }
+
+    if(pasienAktifID!==pasien.id){
+
+        pasienAktifID=pasien.id;
+
+        document.getElementById("nama").classList.remove("fade");
+
+        void document.getElementById("nama").offsetWidth;
+
+        document.getElementById("nama").classList.add("fade");
+
+    }
+
+    document.getElementById("nomor").innerHTML=pasien.id;
+
+    document.getElementById("nama").innerHTML=
+        pasien.sapaan+"<br>"+pasien.nama;
+
+    document.getElementById("desa").innerHTML=
+        "Desa "+pasien.desa;
+
+    document.getElementById("ruang").innerHTML=
+        pasien.klaster;
+
+}
+
+
+/*==================================
+DAFTAR ANTRIAN
+==================================*/
+
+function siapkanAntrian(){
+
+    listAntrian=semuaData.filter(p=>
+
+        p.klaster===KLASTER &&
+
+        p.status==="Menunggu Klaster"
+
+    );
+
+    if(indexTampil>=listAntrian.length){
+
+        indexTampil=0;
+
+    }
+
+    renderAntrian();
+
+}
+/*==================================
+RENDER ANTRIAN
+==================================*/
+
+function renderAntrian(){
+
+    const container=document.getElementById("listAntrian");
+
+    if(listAntrian.length===0){
+
+        container.innerHTML=`
+        <div class="item">
+            <div class="urut">-</div>
+            <div class="pasien">
+                Tidak ada antrian
+            </div>
+        </div>`;
+
+        return;
+
+    }
+
+    let html="";
+
+    const jumlah=Math.min(5,listAntrian.length);
+
+    for(let i=0;i<jumlah;i++){
+
+        const idx=(indexTampil+i)%listAntrian.length;
+
+        const p=listAntrian[idx];
+
+        html+=`
+
+        <div class="item">
+
+            <div class="urut">
+
+                ${idx+1}
+
+            </div>
+
+            <div class="pasien">
+
+                ${p.sapaan} ${p.nama}
+                &nbsp;&nbsp;|&nbsp;&nbsp;
+                Desa ${p.desa}
+
+            </div>
+
+        </div>
+
+        `;
+
+    }
+
+    container.innerHTML=html;
+
+}
+
+
+/*==================================
+RUNNING LIST
+==================================*/
+
+setInterval(()=>{
+
+    if(listAntrian.length<=5) return;
+
+    indexTampil++;
+
+    if(indexTampil>=listAntrian.length){
+
+        indexTampil=0;
+
+    }
+
+    renderAntrian();
+
+},4000);
+
+
+/*==================================
+AUTO REFRESH
+==================================*/
+
+setInterval(loadData,2500);
+
+
+/*==================================
+REFRESH SAAT TAB AKTIF
+==================================*/
+
+document.addEventListener("visibilitychange",()=>{
+
+    if(!document.hidden){
+
+        loadData();
+
+    }
+
+});
+
+
+/*==================================
+LOAD PERTAMA
+==================================*/
+
+loadData();
+
+</script>
+
+</body>
+</html>
