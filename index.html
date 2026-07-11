@@ -190,43 +190,72 @@ document.getElementById("formPendaftaran").addEventListener("submit", function(e
     const klaster = document.getElementById("klaster").value;
     const bayar = document.getElementById("bayar").value;
 
-    if (nokartu !== "" && !/^[0-9]+$/.test(nokartu)) { tampilkanToast('peringatan', '⚠️ Validasi Gagal', 'Nomor BPJS / No RM hanya boleh berisi angka!'); return; }
+    if (nokartu !== "" && !/^[0-9]+$/.test(nokartu)) { 
+        tampilkanToast('peringatan', '⚠️ Validasi Gagal', 'Nomor BPJS / No RM hanya boleh berisi angka!'); 
+        return; 
+    }
+    
     const umurAngka = parseInt(umur, 10);
-    if (isNaN(umurAngka) || umurAngka < 0 || umurAngka > 120) { tampilkanToast('peringatan', '⚠️ Validasi Gagal', 'Harap masukkan umur valid 0-120 tahun.'); return; }
+    if (isNaN(umurAngka) || umurAngka < 0 || umurAngka > 120) { 
+        tampilkanToast('peringatan', '⚠️ Validasi Gagal', 'Harap masukkan umur valid 0-120 tahun.'); 
+        return; 
+    }
     
     // Validasi Luar Desa dengan Konfirmasi
     if (!daftarDesa.some(d => d.toLowerCase() === desa.toLowerCase())) {
-        if (!confirm(`Desa "${desa}" di luar wilayah resmi Bogorejo. Tetap daftarkan?`)) { document.getElementById("desa").focus(); return; }
+        if (!confirm(`Desa "${desa}" di luar wilayah resmi Bogorejo. Tetap daftarkan?`)) { 
+            document.getElementById("desa").focus(); 
+            return; 
+        }
     }
 
-    isSubmitting = true; btnSubmit.disabled = true; btnSubmit.innerHTML = "⏳ Mengirim data...";
+    isSubmitting = true; 
+    btnSubmit.disabled = true; 
+    btnSubmit.innerHTML = "⏳ Mengirim data...";
 
-    const formBody = new URLSearchParams();
-    formBody.append("aksi", "daftar_langsung");
-    formBody.append("sapaan", sapaan);
-    formBody.append("nokartu", nokartu);
-    formBody.append("nama", nama);
-    formBody.append("umur", umurAngka);
-    formBody.append("desa", desa);
-    formBody.append("keluhan", keluhan);
-    formBody.append("klaster", klaster);
-    formBody.append("bayar", bayar);
+    const payload = {
+        aksi: "daftar_langsung",
+        sapaan: sapaan,
+        nokartu: nokartu,
+        nama: nama,
+        umur: umurAngka,
+        desa: desa,
+        keluhan: keluhan,
+        klaster: klaster,
+        bayar: bayar
+    };
 
     fetch(scriptUrl, {
         method: "POST",
-        headers: { "Content-Type": "application/x-www-form-urlencoded;charset=utf-8" },
-        body: formBody.toString()
+        headers: { "Content-Type": "text/plain;charset=utf-8" },
+        body: JSON.stringify(payload)
     })
+    .then(res => res.json())
     .then(res => {
-        if (!res.ok) throw new Error();
+        if (res.status !== "success") {
+            throw new Error(res.pesan || 'Gagal dari server');
+        }
+        
         tampilkanToast('sukses', '🎉 Sukses', 'Data pasien berhasil disimpan!');
-        totalPasien++; if (bayar.toLowerCase().includes("bpjs")) totalBpjs++;
-        document.getElementById("statTotal").innerText = totalPasien; document.getElementById("statBpjs").innerText = totalBpjs;
+        totalPasien++; 
+        if (bayar.toLowerCase().includes("bpjs")) totalBpjs++;
+        
+        document.getElementById("statTotal").innerText = totalPasien; 
+        document.getElementById("statBpjs").innerText = totalBpjs;
+        
         tambahKeRiwayat({ sapaan, nama, umur: umurAngka, desa, klaster, bayar, nokartu, keluhan });
-        document.getElementById("formPendaftaran").reset(); document.getElementById("nama").focus();
+        
+        document.getElementById("formPendaftaran").reset(); 
+        document.getElementById("nama").focus();
     })
-    .catch(() => tampilkanToast('gagal', '❌ Gagal', 'Server Google Sheets bermasalah.'))
-    .finally(() => { isSubmitting = false; btnSubmit.disabled = false; btnSubmit.innerHTML = "💾 SIMPAN DAN KIRIM"; });
+    .catch((error) => {
+        tampilkanToast('gagal', '❌ Gagal', 'Server bermasalah: ' + error.message);
+    })
+    .finally(() => { 
+        isSubmitting = false; 
+        btnSubmit.disabled = false; 
+        btnSubmit.innerHTML = "💾 SIMPAN DAN KIRIM"; 
+    });
 });
 
 function tambahKeRiwayat(data) {
