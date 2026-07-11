@@ -135,14 +135,36 @@ function bersihkanPanel(){
     document.querySelectorAll(".antrian").forEach(x=>x.classList.remove("active"));
 }
 
+/* =========================================
+   PERBAIKAN: Fungsi updateStatus menggunakan JSON
+   ========================================= */
 async function updateStatus(aksi){
     if(!pasienAktif){ alert("Silakan pilih pasien terlebih dahulu."); return; }
     setGlobalLoading(true);
     try {
-        const formBody = new URLSearchParams(); formBody.append("aksi", aksi); formBody.append("row", pasienAktif.row);
-        await fetch(API_URL,{ method:"POST", headers: { "Content-Type": "application/x-www-form-urlencoded;charset=utf-8" }, body: formBody.toString() });
-        if(aksi === "selesai" || aksi === "lewati") { bersihkanPanel(); } else if(aksi === "panggil") { pasienAktif.status = "Dipanggil"; tampilkanDetailPasien(); }
-    } catch(err) { alert("Gagal memperbarui status."); } finally { setGlobalLoading(false); await loadData(); }
+        const payload = {
+            aksi: aksi,
+            row: pasienAktif.row
+        };
+        
+        await fetch(API_URL,{ 
+            method:"POST", 
+            headers: { "Content-Type": "text/plain;charset=utf-8" }, 
+            body: JSON.stringify(payload) 
+        });
+        
+        if(aksi === "selesai" || aksi === "lewati") { 
+            bersihkanPanel(); 
+        } else if(aksi === "panggil") { 
+            pasienAktif.status = "Dipanggil"; 
+            tampilkanDetailPasien(); 
+        }
+    } catch(err) { 
+        alert("Gagal memperbarui status."); 
+    } finally { 
+        setGlobalLoading(false); 
+        await loadData(); 
+    }
 }
 
 function suara(){
@@ -151,15 +173,33 @@ function suara(){
     let u = new SpeechSynthesisUtterance(teks); u.lang = "id-ID"; u.rate = 0.85; u.pitch = 1; speechSynthesis.speak(u);
 }
 
+/* =========================================
+   PERBAIKAN: Fungsi rujuk menggunakan JSON
+   ========================================= */
 async function rujuk(klasterBaru){
     if(!pasienAktif){ alert("Pilih pasien terlebih dahulu."); return; }
     setGlobalLoading(true);
     try {
-        const formBody = new URLSearchParams(); formBody.append("aksi", "pindah_klaster"); formBody.append("row", pasienAktif.row); formBody.append("klaster", klasterBaru);
-        await fetch(API_URL,{ method:"POST", headers: { "Content-Type": "application/x-www-form-urlencoded;charset=utf-8" }, body: formBody.toString() });
+        const payload = {
+            aksi: "pindah_klaster",
+            row: pasienAktif.row,
+            klaster: klasterBaru
+        };
+
+        await fetch(API_URL,{ 
+            method:"POST", 
+            headers: { "Content-Type": "text/plain;charset=utf-8" }, 
+            body: JSON.stringify(payload) 
+        });
+        
         alert(`${pasienAktif.sapaan} ${pasienAktif.nama} berhasil dipindahkan ke ${klasterBaru}`);
         bersihkanPanel();
-    } catch(err) { alert("Gagal merujuk pasien."); } finally { setGlobalLoading(false); await loadData(); }
+    } catch(err) { 
+        alert("Gagal merujuk pasien."); 
+    } finally { 
+        setGlobalLoading(false); 
+        await loadData(); 
+    }
 }
 
 document.querySelector(".next").onclick = async()=>{
