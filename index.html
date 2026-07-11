@@ -63,10 +63,10 @@
                                     <input type="radio" name="sapaan" value="Anak"> Anak
                                 </label>
                                 <label class="btn btn-outline-custom mr-2 mb-2">
-                                    <input type="radio" name="sapaan" value="Sdr"> Sdr
+                                    <input type="radio" name="sapaan" value="Saudara"> Saudara
                                 </label>
                                 <label class="btn btn-outline-custom mr-2 mb-2">
-                                    <input type="radio" name="sapaan" value="Sdri"> Sdri
+                                    <input type="radio" name="sapaan" value="Saudari"> Saudari
                                 </label>
                             </div>
                         </div>
@@ -344,7 +344,7 @@ function tambahKeRiwayat(data) {
     const item = document.createElement("button");
     item.type = "button";
     item.className = "list-group-item list-group-item-action mb-2 border-hijau-kiri text-left p-2 small shadow-sm rounded";
-    item.innerHTML = `<strong>${data.sapaan}. ${data.nama}</strong> (${data.umur} Thn) - Desa ${data.desa}<br>
+    item.innerHTML = `<strong>${data.sapaan} ${data.nama}</strong> (${data.umur} Thn) - Desa ${data.desa}<br>
                       <span class="text-muted font-italic">${data.klaster} | ${data.bayar}</span>`;
 
     item.addEventListener("click", function() {
