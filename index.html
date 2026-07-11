@@ -267,14 +267,16 @@ document.getElementById("formPendaftaran").addEventListener("submit", function(e
         return;
     }
 
-    // 3. Validasi Desa Wilayah Kerja Bogorejo
-    const desaCocok = daftarDesa.some(d => d.toLowerCase() === desa.toLowerCase());
-    if (!desaCocok) {
-        tampilkanToast('peringatan', '📍 Wilayah Tidak Dikenal', 'Desa berada di luar wilayah kerja Puskesmas Bogorejo!');
+    // 3. Validasi Desa Wilayah Kerja Bogorejo (Bisa bypass jika dikonfirmasi)
+const desaCocok = daftarDesa.some(d => d.toLowerCase() === desa.toLowerCase());
+if (!desaCocok) {
+    // Jika tidak cocok, tanyakan ke petugas apakah ingin tetap melanjutkan
+    const abaikanKunci = confirm(`Desa "${desa}" berada di luar wilayah resmi Bogorejo.\nTetap daftarkan pasien dari luar wilayah?`);
+    if (!abaikanKunci) {
         document.getElementById("desa").focus();
-        return;
+        return; // Batalkan pendaftaran jika menekan Cancel
     }
-
+}
     // Aktifkan Status Loading
     isSubmitting = true;
     btnSubmit.disabled = true;
