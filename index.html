@@ -7,23 +7,16 @@
     <link class="ui-style" rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css">
     <style>
         body { background-color: #eff5f3; color: #333; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
-        
-        /* Desain UI Hijau Puskesmas */
         .card { border-radius: 15px; box-shadow: 0 4px 20px rgba(26, 188, 156, 0.08); border: none; overflow: hidden; }
         .card-header-hijau { background: linear-gradient(135deg, #1abc9c, #16a085); color: white; padding: 18px 20px; font-weight: bold; }
-        
         .btn-success { background: linear-gradient(135deg, #27ae60, #2ecc71); border: none; border-radius: 8px; font-weight: bold; transition: all 0.3s; box-shadow: 0 4px 10px rgba(46, 204, 113, 0.3); }
         .btn-success:hover { background: linear-gradient(135deg, #219653, #27ae60); transform: translateY(-2px); box-shadow: 0 6px 15px rgba(46, 204, 113, 0.4); }
         .form-control { border-radius: 8px; border: 1px solid #ced4da; }
         .form-control:focus { border-color: #1abc9c; box-shadow: 0 0 0 0.2rem rgba(26, 188, 156, 0.25); }
-        
         .btn-outline-custom { color: #16a085; border-color: #1abc9c; border-radius: 8px; font-weight: 500; }
         .btn-outline-custom:hover, .btn-outline-custom.active { background-color: #1abc9c !important; color: white !important; border-color: #1abc9c; }
-        
         .text-hijau-tua { color: #16a085 !important; }
         .border-hijau-kiri { border-left: 5px solid #1abc9c !important; }
-
-        /* Container Toast di Pojok Kanan Atas */
         #toastContainer { position: fixed; top: 20px; right: 20px; z-index: 1060; min-width: 300px; }
         .toast { border-radius: 10px; border: none; box-shadow: 0 4px 12px rgba(0,0,0,0.15); }
     </style>
@@ -147,98 +140,44 @@
                     <h5 class="mb-0">📋 Riwayat Cepat</h5>
                 </div>
                 <div class="card-body p-3 bg-white">
-                    <p class="text-muted small px-2">Klik data di bawah ini untuk mengisi ulang form secara otomatis.</p>
                     <div id="riwayatList" class="list-group px-1" style="max-height: 380px; overflow-y: auto;">
                         <div class="text-center text-muted py-4 bg-light rounded">Belum ada riwayat pendaftaran hari ini.</div>
                     </div>
                 </div>
             </div>
-            
-            <div class="alert alert-success mt-3 small text-center font-weight-bold shadow-sm">
-                ✅ Sistem aktif & terhubung ke Google Sheet.
-            </div>
         </div>
     </div>
 </div>
-
-<footer class="text-center py-3 mt-5 text-muted border-top bg-white">
-    <p class="mb-0 font-weight-bold text-hijau-tua">SEHAT Bogorejo V3</p>
-    <small class="font-weight-bold text-secondary">Versi 3.0</small>
-</footer>
 
 <script src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js"></script>
 
 <script>
-// Daftar 14 Desa Resmi Kecamatan Bogorejo
-const daftarDesa = [
-    "Bogorejo", "Gandu", "Gayam", "Gembol", "Gombang", 
-    "Jeruk", "Jurangjero", "Karang", "Karanganyar", 
-    "Nglengkir", "Prantaan", "Sarirejo", "Sendangrejo", "Tempurejo"
-];
-
-// URL Web App Apps Script milikmu
-const scriptUrl = "https://script.google.com/macros/s/AKfycbxYukpr6-gOGPa7MAy8roHcVRX2r69bWP-nBg-GpUsmtUG1JuGcfyXxUnx8MUDZZhTBxA/exec";
+const daftarDesa = ["Bogorejo", "Gandu", "Gayam", "Gembol", "Gombang", "Jeruk", "Jurangjero", "Karang", "Karanganyar", "Nglengkir", "Prantaan", "Sarirejo", "Sendangrejo", "Tempurejo"];
+const scriptUrl = "https://script.google.com/macros/s/AKfycbwBhOezrpPhLmFPeD2QG6nS7a_wjsAznK9eGCzKP2DdQ7bza93656Y4IvIxLYjaihUonQ/exec";
 let isSubmitting = false;
 let totalPasien = 0;
 let totalBpjs = 0;
 
-// Fungsi Toast Notifikasi Pengganti Alert()
 function tampilkanToast(tipe, judul, pesan) {
     const container = document.getElementById("toastContainer");
     const idToast = 'toast-' + Date.now();
     const bgHeader = tipe === 'sukses' ? 'bg-success text-white' : (tipe === 'peringatan' ? 'bg-warning text-dark' : 'bg-danger text-white');
-    
-    const htmlToast = `
-        <div id="${idToast}" class="toast" role="alert" aria-live="assertive" aria-atomic="true" data-delay="4000">
-            <div class="toast-header ${bgHeader}">
-                <strong class="mr-auto">${judul}</strong>
-                <button type="button" class="ml-2 mb-1 close text-white" data-dismiss="toast" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-            <div class="toast-body bg-white font-weight-bold">
-                ${pesan}
-            </div>
-        </div>
-    `;
+    const htmlToast = `<div id="${idToast}" class="toast" role="alert" data-delay="4000"><div class="toast-header ${bgHeader}"><strong class="mr-auto">${judul}</strong><button type="button" class="ml-2 mb-1 close text-white" data-dismiss="toast">&times;</button></div><div class="toast-body bg-white font-weight-bold">${pesan}</div></div>`;
     $(container).append(htmlToast);
-    $(`#${idToast}`).toast('show');
-    
-    $(`#${idToast}`).on('hidden.bs.toast', function () {
-        $(this).remove();
-    });
+    $(`#${idToast}`).toast('show').on('hidden.bs.toast', function () { $(this).remove(); });
 }
 
 document.addEventListener("DOMContentLoaded", function() {
-    setInterval(updateClock, 1000);
-    updateClock();
-
+    setInterval(() => { const now = new Date(); document.getElementById("liveClock").innerText = now.toLocaleDateString('id-ID', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit' }); }, 1000);
     document.getElementById("nama").focus();
-
-    // Setup Autocomplete Desa
-    const desaInput = document.getElementById("desa");
-    const datalist = document.createElement("datalist");
-    datalist.id = "list-desa";
-    daftarDesa.forEach(desa => {
-        let option = document.createElement("option");
-        option.value = desa;
-        datalist.appendChild(option);
-    });
-    document.body.appendChild(datalist);
-    desaInput.setAttribute("list", "list-desa");
+    const datalist = document.createElement("datalist"); datalist.id = "list-desa";
+    daftarDesa.forEach(desa => { let opt = document.createElement("option"); opt.value = desa; datalist.appendChild(opt); });
+    document.body.appendChild(datalist); document.getElementById("desa").setAttribute("list", "list-desa");
 });
-
-function updateClock() {
-    const now = new Date();
-    const opsi = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit' };
-    document.getElementById("liveClock").innerText = now.toLocaleDateString('id-ID', opsi);
-}
 
 document.getElementById("formPendaftaran").addEventListener("submit", function(e) {
     e.preventDefault();
-
-    // Proteksi Cegah Klik/Enter Ganda
     if (isSubmitting) return;
 
     const btnSubmit = document.getElementById("btnSubmit");
@@ -251,123 +190,56 @@ document.getElementById("formPendaftaran").addEventListener("submit", function(e
     const klaster = document.getElementById("klaster").value;
     const bayar = document.getElementById("bayar").value;
 
-    // 1. Validasi Huruf pada No Kartu BPJS / RM (Hanya boleh angka jika diisi)
-    const regexAngka = /^[0-9]+$/;
-    if (nokartu !== "" && !regexAngka.test(nokartu)) {
-        tampilkanToast('peringatan', '⚠️ Validasi Gagal', 'Nomor BPJS / No RM hanya boleh berisi angka!');
-        document.getElementById("nokartu").focus();
-        return;
-    }
-
-    // 2. Validasi Batasan Range Umur (0 - 120 tahun)
+    if (nokartu !== "" && !/^[0-9]+$/.test(nokartu)) { tampilkanToast('peringatan', '⚠️ Validasi Gagal', 'Nomor BPJS / No RM hanya boleh berisi angka!'); return; }
     const umurAngka = parseInt(umur, 10);
-    if (isNaN(umurAngka) || umurAngka < 0 || umurAngka > 120) {
-        tampilkanToast('peringatan', '⚠️ Validasi Gagal', 'Harap masukkan umur valid antara 0 hingga 120 tahun.');
-        document.getElementById("umur").focus();
-        return;
+    if (isNaN(umurAngka) || umurAngka < 0 || umurAngka > 120) { tampilkanToast('peringatan', '⚠️ Validasi Gagal', 'Harap masukkan umur valid 0-120 tahun.'); return; }
+    
+    // Validasi Luar Desa dengan Konfirmasi
+    if (!daftarDesa.some(d => d.toLowerCase() === desa.toLowerCase())) {
+        if (!confirm(`Desa "${desa}" di luar wilayah resmi Bogorejo. Tetap daftarkan?`)) { document.getElementById("desa").focus(); return; }
     }
 
-    // 3. Validasi Desa Wilayah Kerja Bogorejo (Bisa bypass jika dikonfirmasi)
-const desaCocok = daftarDesa.some(d => d.toLowerCase() === desa.toLowerCase());
-if (!desaCocok) {
-    // Jika tidak cocok, tanyakan ke petugas apakah ingin tetap melanjutkan
-    const abaikanKunci = confirm(`Desa "${desa}" berada di luar wilayah resmi Bogorejo.\nTetap daftarkan pasien dari luar wilayah?`);
-    if (!abaikanKunci) {
-        document.getElementById("desa").focus();
-        return; // Batalkan pendaftaran jika menekan Cancel
-    }
-}
-    // Aktifkan Status Loading
-    isSubmitting = true;
-    btnSubmit.disabled = true;
-    btnSubmit.innerHTML = "⏳ Mengirim data ke server Puskesmas...";
+    isSubmitting = true; btnSubmit.disabled = true; btnSubmit.innerHTML = "⏳ Mengirim data...";
 
-    // Bentuk Payload Baru Sesuai Permintaan
-    const payload = {
-	aksi: "daftar_langsung",
-        timestamp: new Date().toISOString(),
-        sapaan: sapaan,
-        nokartu: nokartu,
-        nama: nama,
-        umur: umurAngka,
-        desa: desa,
-        keluhan: keluhan,
-        klaster: klaster,
-        bayar: bayar
-    };
+    const formBody = new URLSearchParams();
+    formBody.append("aksi", "daftar_langsung");
+    formBody.append("sapaan", sapaan);
+    formBody.append("nokartu", nokartu);
+    formBody.append("nama", nama);
+    formBody.append("umur", umurAngka);
+    formBody.append("desa", desa);
+    formBody.append("keluhan", keluhan);
+    formBody.append("klaster", klaster);
+    formBody.append("bayar", bayar);
 
-    // Pengiriman Fetch Aman Tanpa 'no-cors' via text/plain
     fetch(scriptUrl, {
         method: "POST",
-        headers: { "Content-Type": "text/plain;charset=utf-8" },
-        body: JSON.stringify(payload)
+        headers: { "Content-Type": "application/x-www-form-urlencoded;charset=utf-8" },
+        body: formBody.toString()
     })
-    .then(response => {
-        if (!response.ok) {
-            throw new Error('Respons jaringan bermasalah');
-        }
-        
-        tampilkanToast('sukses', '🎉 Sukses', 'Data pasien berhasil disimpan ke Google Sheet!');
-
-        // Update Counter Statistik & Riwayat Cepat Harian
-        totalPasien++;
-        if (bayar.toLowerCase().includes("bpjs")) {
-            totalBpjs++;
-        }
-        document.getElementById("statTotal").innerText = totalPasien;
-        document.getElementById("statBpjs").innerText = totalBpjs;
-
-        tambahKeRiwayat(payload);
-
-        // Reset Formulir Pendaftaran
-        document.getElementById("formPendaftaran").reset();
-        
-        // Reset Fokus Kembali Ke Kolom Nama Pasien
-        document.getElementById("nama").focus();
+    .then(res => {
+        if (!res.ok) throw new Error();
+        tampilkanToast('sukses', '🎉 Sukses', 'Data pasien berhasil disimpan!');
+        totalPasien++; if (bayar.toLowerCase().includes("bpjs")) totalBpjs++;
+        document.getElementById("statTotal").innerText = totalPasien; document.getElementById("statBpjs").innerText = totalBpjs;
+        tambahKeRiwayat({ sapaan, nama, umur: umurAngka, desa, klaster, bayar, nokartu, keluhan });
+        document.getElementById("formPendaftaran").reset(); document.getElementById("nama").focus();
     })
-    .catch(error => {
-        console.error("Error:", error);
-        tampilkanToast('gagal', '❌ Gagal Mengirim', 'Koneksi terputus atau server Apps Script bermasalah. Periksa jaringan Anda!');
-    })
-    .finally(() => {
-        // RESET TOMBOL PASTI KEMBALI NORMAL DALAM KONDISI APAPUN (SUKSES/GAGAL)
-        isSubmitting = false;
-        btnSubmit.disabled = false;
-        btnSubmit.innerHTML = "💾 SIMPAN DAN KIRIM";
-    });
+    .catch(() => tampilkanToast('gagal', '❌ Gagal', 'Server Google Sheets bermasalah.'))
+    .finally(() => { isSubmitting = false; btnSubmit.disabled = false; btnSubmit.innerHTML = "💾 SIMPAN DAN KIRIM"; });
 });
 
 function tambahKeRiwayat(data) {
-    const riwayatList = document.getElementById("riwayatList");
-    if (totalPasien === 1) { riwayatList.innerHTML = ""; }
-
-    const item = document.createElement("button");
-    item.type = "button";
+    const riwayatList = document.getElementById("riwayatList"); if (totalPasien === 1) riwayatList.innerHTML = "";
+    const item = document.createElement("button"); item.type = "button";
     item.className = "list-group-item list-group-item-action mb-2 border-hijau-kiri text-left p-2 small shadow-sm rounded";
-    item.innerHTML = `<strong>${data.sapaan} ${data.nama}</strong> (${data.umur} Thn) - Desa ${data.desa}<br>
-                      <span class="text-muted font-italic">${data.klaster} | ${data.bayar}</span>`;
-
+    item.innerHTML = `<strong>${data.sapaan} ${data.nama}</strong> (${data.umur} Thn) - Desa ${data.desa}<br><span class="text-muted font-italic">${data.klaster} | ${data.bayar}</span>`;
     item.addEventListener("click", function() {
-        document.getElementById("nokartu").value = data.nokartu;
-        document.getElementById("nama").value = data.nama;
-        document.getElementById("umur").value = data.umur;
-        document.getElementById("desa").value = data.desa;
-        document.getElementById("keluhan").value = data.keluhan;
-        document.getElementById("klaster").value = data.klaster;
-        document.getElementById("bayar").value = data.bayar;
-        
-        const radios = document.getElementsByName("sapaan");
-        radios.forEach(radio => {
-            if (radio.value === data.sapaan) {
-                radio.checked = true;
-                radio.parentElement.classList.add("active");
-            } else {
-                radio.parentElement.classList.remove("active");
-            }
-        });
-        document.getElementById("nama").focus();
+        document.getElementById("nokartu").value = data.nokartu; document.getElementById("nama").value = data.nama;
+        document.getElementById("umur").value = data.umur; document.getElementById("desa").value = data.desa;
+        document.getElementById("keluhan").value = data.keluhan; document.getElementById("klaster").value = data.klaster; document.getElementById("bayar").value = data.bayar;
+        document.getElementsByName("sapaan").forEach(r => { r.checked = (r.value === data.sapaan); if(r.checked) r.parentElement.classList.add("active"); else r.parentElement.classList.remove("active"); });
     });
-
     riwayatList.insertBefore(item, riwayatList.firstChild);
 }
 </script>
