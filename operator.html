@@ -200,9 +200,9 @@
             <div id="desa">-</div>
             <table class="info">
                 <tr><td>ID Pasien / RM</td><td id="id">-</td></tr>
-                <tr><td>Nomor BPJS</td><td id="bpjs">-</td></tr>
+                <tr><td>Nomor Kartu</td><td id="nokartu">-</td></tr>
                 <tr><td>Umur</td><td id="umur">-</td></tr>
-                <tr><td>Jenis Pembayaran</td><td id="pembayaran">-</td></tr>
+                <tr><td>Jenis Pembayaran</td><td id="bayar">-</td></tr>
                 <tr><td>Keluhan Utama</td><td id="keluhan">-</td></tr>
                 <tr><td>Klaster Tujuan</td><td id="klaster">-</td></tr>
             </table>
@@ -253,13 +253,13 @@ const params = new URLSearchParams(window.location.search);
 const KLASTER = params.get("klaster") || "Klaster 3 Dewasa dan Lansia";
 document.getElementById("judul").innerHTML = "🏥 SAPA BOGOREJO - " + KLASTER;
 
-// State Memory Utama (Poin 1)
+// State Memory Utama
 let dataAntrianLokal = [];
 let pasienAktif = null;
 let riwayatPanggilan = [];
 let sedangProsesServer = false;
 
-/* TOAST REPLACEMENT FOR ALERT() (Poin 2) */
+/* TOAST REPLACEMENT FOR ALERT() */
 function showToast(message, type = "success") {
     const container = document.getElementById("toast-container");
     const toast = document.createElement("div");
@@ -277,7 +277,7 @@ function updateJam() {
 updateJam();
 setInterval(updateJam, 1000);
 
-/* LOCK & LOADING CONTROL (Poin 3 & 4) */
+/* LOCK & LOADING CONTROL */
 function setGlobalLoading(isLoading) {
     sedangProsesServer = isLoading;
     const tombols = document.querySelectorAll(".action-btn");
@@ -285,11 +285,7 @@ function setGlobalLoading(isLoading) {
         btn.disabled = isLoading;
     });
     
-    // Simpan teks asli jika belum ada
     const nextBtn = document.querySelector(".next");
-    const repeatBtn = document.querySelector(".repeat");
-    const doneBtn = document.querySelector(".done");
-
     if (isLoading) {
         nextBtn.innerText = "⚡ Memproses...";
     } else {
@@ -297,7 +293,7 @@ function setGlobalLoading(isLoading) {
     }
 }
 
-/* FETCH & DATA STORAGE (Poin 1) */
+/* FETCH & DATA STORAGE */
 async function loadData(isAutomated = true) {
     if (sedangProsesServer) return; 
     
@@ -306,10 +302,8 @@ async function loadData(isAutomated = true) {
         if(!res.ok) throw new Error();
         const data = await res.json();
         
-        // Simpan data mentah ke memori lokal
         dataAntrianLokal = data;
         
-        // Filter daftar tunggu untuk Klaster ini
         const listTunggu = dataAntrianLokal.filter(item => item.klaster === KLASTER && item.status === "Menunggu Klaster");
         document.getElementById("jumlah").innerHTML = listTunggu.length;
 
@@ -319,7 +313,7 @@ async function loadData(isAutomated = true) {
             html += `
                 <div class="antrian ${isActive}" data-row="${item.row}" onclick="pilihPasienDariMemori(${item.row})">
                     <b>${item.sapaan} ${item.nama}</b><br>
-                    <small>Desa ${item.desa} • ${item.pembayaran || 'Umum'}</small>
+                    <small>Desa ${item.desa} • ${item.bayar || 'Umum'}</small>
                 </div>
             `;
         });
@@ -329,13 +323,11 @@ async function loadData(isAutomated = true) {
         }
         document.getElementById("list").innerHTML = html;
         
-        // Update Footer Status (Poin 8)
         const sekarang = new Date();
-        document.getElementById("sync-time").innerHTML = sekarang.toLocaleTimeString("id-ID");
+        document.getElementById("sync-time").innerHTML = screen.width < 500 ? sekarang.toLocaleTimeString("id-ID") : sekarang.toLocaleTimeString("id-ID");
         document.getElementById("server-dot").className = "dot online";
         document.getElementById("server-text").innerHTML = "Server Online";
 
-        // Auto Pilih Pasien Pertama jika kosong (Poin 6)
         if (!pasienAktif && listTunggu.length > 0) {
             pilihPasienDariMemori(listTunggu[0].row);
         }
@@ -348,22 +340,19 @@ async function loadData(isAutomated = true) {
     }
 }
 
-/* POIN 1: PILIH PASIEN DARI MEMORI (Tanpa Fetch Lagi) */
+/* PILIH PASIEN DARI MEMORI */
 function pilihPasienDariMemori(row) {
     if(sedangProsesServer) return;
 
-    // Cari langsung di data lokal tanpa hit server API
     const target = dataAntrianLokal.find(x => x.row == row);
     if (!target) return;
 
     pasienAktif = target;
 
-    // Highlight item terpilih di list kiri
     document.querySelectorAll(".antrian").forEach(x => x.classList.remove("active"));
     const selectedEl = document.querySelector(`.antrian[data-row='${row}']`);
     if(selectedEl) selectedEl.classList.add("active");
 
-    // Tampilkan di Panel Tengah (Poin 7 - Dinamis Status)
     const badge = document.getElementById("badge-status");
     badge.innerText = pasienAktif.status;
     badge.className = "status " + pasienAktif.status.toLowerCase().replace(" ", "-");
@@ -374,13 +363,12 @@ function pilihPasienDariMemori(row) {
     document.getElementById("keluhan").innerHTML = pasienAktif.keluhan || "-";
     document.getElementById("klaster").innerHTML = pasienAktif.klaster;
     
-    // Penyempurnaan parameter informasi tambahan
     document.getElementById("umur").innerHTML = pasienAktif.umur ? pasienAktif.umur + " Tahun" : "-";
-    document.getElementById("bpjs").innerHTML = pasienAktif.bpjs || "Bukan Peserta/Umum";
-    document.getElementById("pembayaran").innerHTML = pasienAktif.pembayaran || "Umum";
+    document.getElementById("nokartu").innerHTML = pasienAktif.nokartu || "Bukan Peserta/Umum";
+    document.getElementById("bayar").innerHTML = pasienAktif.bayar || "Umum";
 }
 
-/* POIN 5: KOSONGKAN PANEL */
+/* KOSONGKAN PANEL */
 function bersihkanPanelTengah() {
     pasienAktif = null;
     const badge = document.getElementById("badge-status");
@@ -393,11 +381,11 @@ function bersihkanPanelTengah() {
     document.getElementById("keluhan").innerHTML = "-";
     document.getElementById("klaster").innerHTML = "-";
     document.getElementById("umur").innerHTML = "-";
-    document.getElementById("bpjs").innerHTML = "-";
-    document.getElementById("pembayaran").innerHTML = "-";
+    document.getElementById("nokartu").innerHTML = "-";
+    document.getElementById("bayar").innerHTML = "-";
 }
 
-/* POIN 9: KELOLA RIWAYAT */
+/* KELOLA RIWAYAT */
 function tambahKeRiwayat(pasien, statusAkhir) {
     if(!pasien) return;
     riwayatPanggilan.unshift({
@@ -406,7 +394,6 @@ function tambahKeRiwayat(pasien, statusAkhir) {
         status: statusAkhir
     });
     
-    // Batasi maks 5
     if(riwayatPanggilan.length > 5) riwayatPanggilan.pop();
     
     let html = "";
@@ -417,27 +404,33 @@ function tambahKeRiwayat(pasien, statusAkhir) {
     document.getElementById("riwayat-list").innerHTML = html;
 }
 
-/* UPDATE STATUS KE GOOGLE SHEETS */
+/* UPDATE STATUS KE GOOGLE SHEETS (JSON FORMAT) */
 async function updateStatus(aksi) {
     if (!pasienAktif) {
-        showToast("Silakan pilih salah satu pasien di antrian terlebih dahulu.", "error"); // Poin 2
+        showToast("Silakan pilih salah satu pasien di antrian terlebih dahulu.", "error");
         return;
     }
 
     setGlobalLoading(true);
     try {
-        const dataKirim = new URLSearchParams();
-        dataKirim.append("aksi", aksi);
-        dataKirim.append("row", pasienAktif.row);
+        const dataKirim = {
+            aksi: aksi,
+            row: pasienAktif.row
+        };
 
-        const res = await fetch(API_URL, { method: "POST", body: dataKirim });
+        const res = await fetch(API_URL, { 
+            method: "POST", 
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(dataKirim) 
+        });
+        
         if(!res.ok) throw new Error();
         
         showToast(`Pasien ${pasienAktif.nama} berhasil diupdate: ${aksi.toUpperCase()}`);
         
         if(aksi === "selesai" || aksi === "lewati") {
             tambahKeRiwayat(pasienAktif, aksi === "selesai" ? "Selesai" : "Lewati");
-            bersihkanPanelTengah(); // Poin 5
+            bersihkanPanelTengah();
         } else if(aksi === "panggil") {
             pasienAktif.status = "Dipanggil";
             pilihPasienDariMemori(pasienAktif.row);
@@ -467,27 +460,33 @@ function suaraRujukSukses(tujuan) {
     speechSynthesis.speak(u);
 }
 
-/* RUJUK INTERNAL TRANSFER */
+/* RUJUK INTERNAL TRANSFER (JSON FORMAT) */
 async function prosesRujuk(klasterBaru) {
     if (!pasienAktif) {
-        showToast("Pilih data pasien terlebih dahulu sebelum merujuk.", "error"); // Poin 2
+        showToast("Pilih data pasien terlebih dahulu sebelum merujuk.", "error");
         return;
     }
 
     setGlobalLoading(true);
     try {
-        const dataKirim = new URLSearchParams();
-        dataKirim.append("aksi", "pindah_klaster");
-        dataKirim.append("row", pasienAktif.row);
-        dataKirim.append("klaster", klasterBaru);
+        const dataKirim = {
+            aksi: "pindah_klaster",
+            row: pasienAktif.row,
+            klaster: klasterBaru
+        };
 
-        const res = await fetch(API_URL, { method: "POST", body: dataKirim });
+        const res = await fetch(API_URL, { 
+            method: "POST", 
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(dataKirim) 
+        });
+        
         if(!res.ok) throw new Error();
 
-        showToast(`Pasien sukses dipindahkan ke unit: ${klasterBaru}`, "success"); // Poin 2
+        showToast(`Pasien sukses dipindahkan ke unit: ${klasterBaru}`, "success");
         suaraRujukSukses(klasterBaru);
         tambahKeRiwayat(pasienAktif, `Rujuk: ${klasterBaru}`);
-        bersihkanPanelTengah(); // Poin 5
+        bersihkanPanelTengah();
     } catch(err) {
         showToast("Proses internal gagal, silakan periksa jaringan komputer.", "error");
     } finally {
@@ -514,9 +513,9 @@ document.querySelector(".poned").onclick = () => prosesRujuk("PONED");
 document.querySelector(".gigi").onclick = () => prosesRujuk("Lintas Klaster (Gigi dan Mulut)");
 document.querySelector(".konseling").onclick = () => prosesRujuk("Konseling");
 
-/* POIN 10: SHORTCUT KEYBOARD OPERATOR */
+/* SHORTCUT KEYBOARD OPERATOR */
 window.addEventListener("keydown", async (e) => {
-    if (sedangProsesServer) return; // Kunci jika sedang proses
+    if (sedangProsesServer) return;
     
     switch(e.key) {
         case "F2":
