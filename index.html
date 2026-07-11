@@ -1,277 +1,373 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SEHAT Bogorejo V3 - Pendaftaran Pasien</title>
+    <link class="ui-style" rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css">
+    <style>
+        body { background-color: #eff5f3; color: #333; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        
+        /* Desain UI Hijau Puskesmas */
+        .card { border-radius: 15px; box-shadow: 0 4px 20px rgba(26, 188, 156, 0.08); border: none; overflow: hidden; }
+        .card-header-hijau { background: linear-gradient(135deg, #1abc9c, #16a085); color: white; padding: 18px 20px; font-weight: bold; }
+        
+        .btn-success { background: linear-gradient(135deg, #27ae60, #2ecc71); border: none; border-radius: 8px; font-weight: bold; transition: all 0.3s; box-shadow: 0 4px 10px rgba(46, 204, 113, 0.3); }
+        .btn-success:hover { background: linear-gradient(135deg, #219653, #27ae60); transform: translateY(-2px); box-shadow: 0 6px 15px rgba(46, 204, 113, 0.4); }
+        .form-control { border-radius: 8px; border: 1px solid #ced4da; }
+        .form-control:focus { border-color: #1abc9c; box-shadow: 0 0 0 0.2rem rgba(26, 188, 156, 0.25); }
+        
+        .btn-outline-custom { color: #16a085; border-color: #1abc9c; border-radius: 8px; font-weight: 500; }
+        .btn-outline-custom:hover, .btn-outline-custom.active { background-color: #1abc9c !important; color: white !important; border-color: #1abc9c; }
+        
+        .text-hijau-tua { color: #16a085 !important; }
+        .border-hijau-kiri { border-left: 5px solid #1abc9c !important; }
 
-<title>Puseksmas Bogorejo - Pendaftaran</title>
-
-<style>
-
-*{
-margin:0;
-padding:0;
-box-sizing:border-box;
-font-family:Arial,sans-serif;
-}
-
-body{
-background:linear-gradient(135deg,#0f766e,#2563eb);
-min-height:100vh;
-padding:20px;
-}
-
-.container{
-max-width:500px;
-margin:auto;
-background:white;
-border-radius:30px;
-overflow:hidden;
-box-shadow:0 15px 40px rgba(0,0,0,.2);
-}
-
-.header{
-padding:30px;
-text-align:center;
-background:linear-gradient(135deg,#16a34a,#22c55e);
-color:white;
-}
-
-.logo{
-font-size:60px;
-margin-bottom:10px;
-}
-
-.header h1{
-font-size:28px;
-}
-
-.header p{
-margin-top:10px;
-opacity:.9;
-}
-
-.content{
-padding:25px;
-}
-
-.label{
-font-weight:bold;
-margin-top:20px;
-margin-bottom:10px;
-display:block;
-color:#334155;
-}
-
-.sapaan{
-display:grid;
-grid-template-columns:1fr 1fr;
-gap:10px;
-}
-
-.sapaan button{
-padding:15px;
-border:none;
-border-radius:15px;
-background:#e2e8f0;
-font-size:16px;
-cursor:pointer;
-}
-
-.sapaan button.active{
-background:#16a34a;
-color:white;
-}
-
-input,select{
-width:100%;
-padding:16px;
-border-radius:15px;
-border:1px solid #cbd5e1;
-font-size:16px;
-}
-
-.submit{
-width:100%;
-padding:18px;
-margin-top:30px;
-border:none;
-border-radius:18px;
-background:#16a34a;
-color:white;
-font-size:20px;
-font-weight:bold;
-cursor:pointer;
-}
-
-.submit:disabled{
-background:#94a3b8;
-}
-
-#status{
-display:none;
-margin-top:20px;
-padding:15px;
-background:#dcfce7;
-border-radius:15px;
-text-align:center;
-font-weight:bold;
-color:#166534;
-}
-
-</style>
+        /* Container Toast di Pojok Kanan Atas */
+        #toastContainer { position: fixed; top: 20px; right: 20px; z-index: 1060; min-width: 300px; }
+        .toast { border-radius: 10px; border: none; box-shadow: 0 4px 12px rgba(0,0,0,0.15); }
+    </style>
 </head>
-
 <body>
 
-<div class="container">
+<div id="toastContainer"></div>
 
-<div class="header">
-<div class="logo">🏥</div>
-<h1>Puskesmas Bogorejo</h1>
-<p>Pendaftaran Pasien</p>
+<div class="container my-4">
+    <div class="text-center mb-4">
+        <h1 class="display-4 font-weight-bold text-hijau-tua">🏥 SEHAT BOGOREJO</h1>
+        <p class="lead text-muted">Sistem Elektronik Antrian dan Pelayanan Terpadu</p>
+        <div id="liveClock" class="font-weight-bold text-secondary bg-white d-inline-block px-3 py-1 rounded-pill shadow-sm"></div>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-7 mb-4">
+            <div class="card">
+                <div class="card-header-hijau">
+                    <h4 class="mb-0">📝 Pendaftaran Pasien</h4>
+                </div>
+                <div class="card-body p-4">
+                    <p class="text-muted small">Silakan lengkapi data pasien dengan benar untuk dikirim ke sistem.</p>
+                    <hr>
+
+                    <form id="formPendaftaran">
+                        <div class="form-group">
+                            <label class="font-weight-bold text-hijau-tua">Sapaan</label>
+                            <div class="btn-group-toggle d-flex flex-wrap" data-toggle="buttons">
+                                <label class="btn btn-outline-custom mr-2 mb-2 active">
+                                    <input type="radio" name="sapaan" value="Bapak" checked> Bapak
+                                </label>
+                                <label class="btn btn-outline-custom mr-2 mb-2">
+                                    <input type="radio" name="sapaan" value="Ibu"> Ibu
+                                </label>
+                                <label class="btn btn-outline-custom mr-2 mb-2">
+                                    <input type="radio" name="sapaan" value="Anak"> Anak
+                                </label>
+                                <label class="btn btn-outline-custom mr-2 mb-2">
+                                    <input type="radio" name="sapaan" value="Sdr"> Sdr
+                                </label>
+                                <label class="btn btn-outline-custom mr-2 mb-2">
+                                    <input type="radio" name="sapaan" value="Sdri"> Sdri
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="nokartu" class="font-weight-bold text-hijau-tua">🪪 Nomor BPJS / No RM</label>
+                            <input type="text" id="nokartu" class="form-control" placeholder="Contoh: 000123456" inputmode="numeric">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="nama" class="font-weight-bold text-hijau-tua">👤 Nama Pasien <span class="text-danger">*</span></label>
+                            <input type="text" id="nama" class="form-control" placeholder="Masukkan Nama Lengkap" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="umur" class="font-weight-bold text-hijau-tua">🎂 Umur (Tahun) <span class="text-danger">*</span></label>
+                            <input type="number" id="umur" class="form-control" placeholder="Masukkan Umur" min="0" max="120" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="desa" class="font-weight-bold text-hijau-tua">📍 Desa <span class="text-danger">*</span></label>
+                            <input type="text" id="desa" class="form-control" placeholder="Masukkan Nama Desa" required autocomplete="off">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="keluhan" class="font-weight-bold text-hijau-tua">🤒 Keluhan</label>
+                            <textarea id="keluhan" class="form-control" rows="3" placeholder="Jelaskan keluhan pasien..."></textarea>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="klaster" class="font-weight-bold text-hijau-tua">🏥 Klaster Tujuan</label>
+                            <select id="klaster" class="form-control">
+                                <option value="Lintas Klaster (UGD)">Lintas Klaster (UGD)</option>
+                                <option value="Klaster 3 Dewasa dan Lansia">Klaster 3 Dewasa dan Lansia</option>
+                                <option value="Lintas Klaster (Gigi dan Mulut)">Lintas Klaster (Gigi dan Mulut)</option>
+                                <option value="Klaster II Ibu dan Anak (KIA)">Klaster II Ibu dan Anak (KIA)</option>
+                                <option value="Klaster II Anak dan Remaja (MTBS)">Klaster II Anak dan Remaja (MTBS)</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="bayar" class="font-weight-bold text-hijau-tua">💳 Jenis Pembayaran</label>
+                            <select id="bayar" class="form-control">
+                                <option value="BPJS PBI">BPJS PBI</option>
+                                <option value="BPJS Non PBI">BPJS Non PBI</option>
+                                <option value="Umum / Mandiri">Umum / Mandiri</option>
+                                <option value="Gratis">Gratis</option>
+                            </select>
+                        </div>
+
+                        <button type="submit" id="btnSubmit" class="btn btn-success btn-block py-2 mt-4">💾 SIMPAN DAN KIRIM</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-5">
+            <div class="card mb-4">
+                <div class="card-header-hijau" style="background: linear-gradient(135deg, #34495e, #2c3e50);">
+                    <h5 class="mb-0">📊 Statistik Hari Ini</h5>
+                </div>
+                <div class="card-body p-4 bg-white">
+                    <div class="row text-center">
+                        <div class="col-6 border-right">
+                            <h2 id="statTotal" class="font-weight-bold text-success">0</h2>
+                            <span class="small text-muted font-weight-bold text-uppercase">Total Pasien</span>
+                        </div>
+                        <div class="col-6">
+                            <h2 id="statBpjs" class="font-weight-bold text-info">0</h2>
+                            <span class="small text-muted font-weight-bold text-uppercase">Pasien BPJS</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header-hijau">
+                    <h5 class="mb-0">📋 Riwayat Cepat</h5>
+                </div>
+                <div class="card-body p-3 bg-white">
+                    <p class="text-muted small px-2">Klik data di bawah ini untuk mengisi ulang form secara otomatis.</p>
+                    <div id="riwayatList" class="list-group px-1" style="max-height: 380px; overflow-y: auto;">
+                        <div class="text-center text-muted py-4 bg-light rounded">Belum ada riwayat pendaftaran hari ini.</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="alert alert-success mt-3 small text-center font-weight-bold shadow-sm">
+                ✅ Sistem aktif & terhubung ke Google Sheet.
+            </div>
+        </div>
+    </div>
 </div>
 
-<div class="content">
+<footer class="text-center py-3 mt-5 text-muted border-top bg-white">
+    <p class="mb-0 font-weight-bold text-hijau-tua">SEHAT Bogorejo V3</p>
+    <small class="font-weight-bold text-secondary">Versi 3.0</small>
+</footer>
 
-<label class="label">Sapaan</label>
-
-<div class="sapaan">
-<button class="active">Bapak</button>
-<button>Ibu</button>
-<button>Anak</button>
-<button>Saudara</button>
-<button>Saudari</button>
-</div>
-
-<label class="label">Nomor BPJS / No. RM (Opsional)</label>
-<input type="text" id="nokartu" placeholder="Nomor BPJS / Rekam Medis">
-
-<label class="label">Nama Pasien</label>
-<input type="text" id="nama" placeholder="Masukkan nama pasien">
-
-<label class="label">Umur</label>
-<input type="number" id="umur" placeholder="Masukkan umur">
-
-<label class="label">Desa</label>
-<input type="text" id="desa" placeholder="Masukkan desa">
-
-<label class="label">Keluhan</label>
-<textarea id="keluhan" style="width:100%;padding:16px;border-radius:15px;border:1px solid #cbd5e1;font-size:16px;min-height:90px;" placeholder="Masukkan keluhan pasien"></textarea>
-
-<label class="label">Klaster Tujuan</label>
-
-<select id="klaster">
-<option>Klaster 3 Dewasa dan Lansia</option>
-<option>Klaster II Ibu dan Anak (KIA)</option>
-<option>Klaster II Anak dan Remaja (MTBS)</option>
-<option>PONED</option>
-<option>Lintas Klaster (Gigi dan Mulut)</option>
-<option>Lintas Klaster (UGD)</option>
-</select>
-
-<label class="label">Jenis Pembayaran</label>
-<select id="bayar">
-<option>BPJS PBI</option>
-<option>BPJS Non PBI</option>
-<option>Umum</option>
-<option>Gratis</option>
-</select>
-
-<button class="submit" id="btnSimpan">
-SIMPAN DAN KIRIM
-</button>
-
-<div id="status"></div>
-
-</div>
-</div>
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js"></script>
 
 <script>
+// Daftar 14 Desa Resmi Kecamatan Bogorejo
+const daftarDesa = [
+    "Bogorejo", "Gandu", "Gayam", "Gembol", "Gombang", 
+    "Jeruk", "Jurangjero", "Karang", "Karanganyar", 
+    "Nglengkir", "Prantaan", "Sarirejo", "Sendangrejo", "Tempurejo"
+];
 
-const API_URL="https://script.google.com/macros/s/AKfycbwBhOezrpPhLmFPeD2QG6nS7a_wjsAznK9eGCzKP2DdQ7bza93656Y4IvIxLYjaihUonQ/exec";
+// URL Web App Apps Script milikmu
+const scriptUrl = "https://script.google.com/macros/s/AKfycbwBhOezrpPhLmFPeD2QG6nS7a_wjsAznK9eGCzKP2DdQ7bza93656Y4IvIxLYjaihUonQ/exec";
+let isSubmitting = false;
+let totalPasien = 0;
+let totalBpjs = 0;
 
-let sapaan="Bapak";
-
-document.querySelectorAll(".sapaan button").forEach(btn=>{
-
-btn.onclick=function(){
-
-document.querySelectorAll(".sapaan button")
-.forEach(x=>x.classList.remove("active"));
-
-this.classList.add("active");
-
-sapaan=this.innerText;
-
+// Fungsi Toast Notifikasi Pengganti Alert()
+function tampilkanToast(tipe, judul, pesan) {
+    const container = document.getElementById("toastContainer");
+    const idToast = 'toast-' + Date.now();
+    const bgHeader = tipe === 'sukses' ? 'bg-success text-white' : (tipe === 'peringatan' ? 'bg-warning text-dark' : 'bg-danger text-white');
+    
+    const htmlToast = `
+        <div id="${idToast}" class="toast" role="alert" aria-live="assertive" aria-atomic="true" data-delay="4000">
+            <div class="toast-header ${bgHeader}">
+                <strong class="mr-auto">${judul}</strong>
+                <button type="button" class="ml-2 mb-1 close text-white" data-dismiss="toast" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="toast-body bg-white font-weight-bold">
+                ${pesan}
+            </div>
+        </div>
+    `;
+    $(container).append(htmlToast);
+    $(`#${idToast}`).toast('show');
+    
+    $(`#${idToast}`).on('hidden.bs.toast', function () {
+        $(this).remove();
+    });
 }
 
+document.addEventListener("DOMContentLoaded", function() {
+    setInterval(updateClock, 1000);
+    updateClock();
+
+    document.getElementById("nama").focus();
+
+    // Setup Autocomplete Desa
+    const desaInput = document.getElementById("desa");
+    const datalist = document.createElement("datalist");
+    datalist.id = "list-desa";
+    daftarDesa.forEach(desa => {
+        let option = document.createElement("option");
+        option.value = desa;
+        datalist.appendChild(option);
+    });
+    document.body.appendChild(datalist);
+    desaInput.setAttribute("list", "list-desa");
 });
 
-document.getElementById("btnSimpan").onclick=async()=>{
-
-const nokartu=document.getElementById("nokartu").value.trim();
-const nama=document.getElementById("nama").value.trim();
-const umur=document.getElementById("umur").value.trim();
-const desa=document.getElementById("desa").value.trim();
-const keluhan=document.getElementById("keluhan").value.trim();
-const klaster=document.getElementById("klaster").value;
-const bayar=document.getElementById("bayar").value;
-
-if(!nama || !desa){
-alert("Nama dan desa wajib diisi");
-return;
+function updateClock() {
+    const now = new Date();
+    const opsi = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit' };
+    document.getElementById("liveClock").innerText = now.toLocaleDateString('id-ID', opsi);
 }
 
-const btn=document.getElementById("btnSimpan");
+document.getElementById("formPendaftaran").addEventListener("submit", function(e) {
+    e.preventDefault();
 
-btn.disabled=true;
-btn.innerText="MENYIMPAN...";
+    // Proteksi Cegah Klik/Enter Ganda
+    if (isSubmitting) return;
 
-try{
+    const btnSubmit = document.getElementById("btnSubmit");
+    const sapaan = document.querySelector('input[name="sapaan"]:checked').value;
+    const nokartu = document.getElementById("nokartu").value.trim();
+    const nama = document.getElementById("nama").value.trim();
+    const umur = document.getElementById("umur").value.trim();
+    const desa = document.getElementById("desa").value.trim();
+    const keluhan = document.getElementById("keluhan").value.trim();
+    const klaster = document.getElementById("klaster").value;
+    const bayar = document.getElementById("bayar").value;
 
-const response=await fetch(API_URL,{
-method:"POST",
-body:JSON.stringify({
-aksi:"daftar_langsung",
-nokartu:nokartu,
-sapaan:sapaan,
-nama:nama,
-umur:umur,
-desa:desa,
-keluhan:keluhan,
-klaster:klaster,
-bayar:bayar
-})
+    // 1. Validasi Huruf pada No Kartu BPJS / RM (Hanya boleh angka jika diisi)
+    const regexAngka = /^[0-9]+$/;
+    if (nokartu !== "" && !regexAngka.test(nokartu)) {
+        tampilkanToast('peringatan', '⚠️ Validasi Gagal', 'Nomor BPJS / No RM hanya boleh berisi angka!');
+        document.getElementById("nokartu").focus();
+        return;
+    }
+
+    // 2. Validasi Batasan Range Umur (0 - 120 tahun)
+    const umurAngka = parseInt(umur, 10);
+    if (isNaN(umurAngka) || umurAngka < 0 || umurAngka > 120) {
+        tampilkanToast('peringatan', '⚠️ Validasi Gagal', 'Harap masukkan umur valid antara 0 hingga 120 tahun.');
+        document.getElementById("umur").focus();
+        return;
+    }
+
+    // 3. Validasi Desa Wilayah Kerja Bogorejo
+    const desaCocok = daftarDesa.some(d => d.toLowerCase() === desa.toLowerCase());
+    if (!desaCocok) {
+        tampilkanToast('peringatan', '📍 Wilayah Tidak Dikenal', 'Desa berada di luar wilayah kerja Puskesmas Bogorejo!');
+        document.getElementById("desa").focus();
+        return;
+    }
+
+    // Aktifkan Status Loading
+    isSubmitting = true;
+    btnSubmit.disabled = true;
+    btnSubmit.innerHTML = "⏳ Mengirim data ke server Puskesmas...";
+
+    // Bentuk Payload Baru Sesuai Permintaan
+    const payload = {
+	aksi: "daftar_langsung",
+        timestamp: new Date().toISOString(),
+        sapaan: sapaan,
+        nokartu: nokartu,
+        nama: nama,
+        umur: umurAngka,
+        desa: desa,
+        keluhan: keluhan,
+        klaster: klaster,
+        bayar: bayar
+    };
+
+    // Pengiriman Fetch Aman Tanpa 'no-cors' via text/plain
+    fetch(scriptUrl, {
+        method: "POST",
+        headers: { "Content-Type": "text/plain;charset=utf-8" },
+        body: JSON.stringify(payload)
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Respons jaringan bermasalah');
+        }
+        
+        tampilkanToast('sukses', '🎉 Sukses', 'Data pasien berhasil disimpan ke Google Sheet!');
+
+        // Update Counter Statistik & Riwayat Cepat Harian
+        totalPasien++;
+        if (bayar.toLowerCase().includes("bpjs")) {
+            totalBpjs++;
+        }
+        document.getElementById("statTotal").innerText = totalPasien;
+        document.getElementById("statBpjs").innerText = totalBpjs;
+
+        tambahKeRiwayat(payload);
+
+        // Reset Formulir Pendaftaran
+        document.getElementById("formPendaftaran").reset();
+        
+        // Reset Fokus Kembali Ke Kolom Nama Pasien
+        document.getElementById("nama").focus();
+    })
+    .catch(error => {
+        console.error("Error:", error);
+        tampilkanToast('gagal', '❌ Gagal Mengirim', 'Koneksi terputus atau server Apps Script bermasalah. Periksa jaringan Anda!');
+    })
+    .finally(() => {
+        // RESET TOMBOL PASTI KEMBALI NORMAL DALAM KONDISI APAPUN (SUKSES/GAGAL)
+        isSubmitting = false;
+        btnSubmit.disabled = false;
+        btnSubmit.innerHTML = "💾 SIMPAN DAN KIRIM";
+    });
 });
 
-const result=await response.json();
+function tambahKeRiwayat(data) {
+    const riwayatList = document.getElementById("riwayatList");
+    if (totalPasien === 1) { riwayatList.innerHTML = ""; }
 
-document.getElementById("status").style.display="block";
+    const item = document.createElement("button");
+    item.type = "button";
+    item.className = "list-group-item list-group-item-action mb-2 border-hijau-kiri text-left p-2 small shadow-sm rounded";
+    item.innerHTML = `<strong>${data.sapaan}. ${data.nama}</strong> (${data.umur} Thn) - Desa ${data.desa}<br>
+                      <span class="text-muted font-italic">${data.klaster} | ${data.bayar}</span>`;
 
-document.getElementById("status").innerHTML=
-"✅ "+sapaan+" "+nama+
-" berhasil dikirim ke "+
-klaster;
+    item.addEventListener("click", function() {
+        document.getElementById("nokartu").value = data.nokartu;
+        document.getElementById("nama").value = data.nama;
+        document.getElementById("umur").value = data.umur;
+        document.getElementById("desa").value = data.desa;
+        document.getElementById("keluhan").value = data.keluhan;
+        document.getElementById("klaster").value = data.klaster;
+        document.getElementById("bayar").value = data.bayar;
+        
+        const radios = document.getElementsByName("sapaan");
+        radios.forEach(radio => {
+            if (radio.value === data.sapaan) {
+                radio.checked = true;
+                radio.parentElement.classList.add("active");
+            } else {
+                radio.parentElement.classList.remove("active");
+            }
+        });
+        document.getElementById("nama").focus();
+    });
 
-document.getElementById("nama").value="";
-document.getElementById("desa").value="";
-
+    riwayatList.insertBefore(item, riwayatList.firstChild);
 }
-catch(err){
-
-console.log(err);
-
-alert("Gagal menyimpan data");
-
-}
-
-btn.disabled=false;
-btn.innerText="SIMPAN DAN KIRIM";
-
-}
-
 </script>
-
 </body>
 </html>
