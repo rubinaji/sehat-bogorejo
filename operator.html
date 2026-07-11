@@ -324,7 +324,7 @@ async function loadData(isAutomated = true) {
         document.getElementById("list").innerHTML = html;
         
         const sekarang = new Date();
-        document.getElementById("sync-time").innerHTML = screen.width < 500 ? sekarang.toLocaleTimeString("id-ID") : sekarang.toLocaleTimeString("id-ID");
+        document.getElementById("sync-time").innerHTML = sekarang.toLocaleTimeString("id-ID");
         document.getElementById("server-dot").className = "dot online";
         document.getElementById("server-text").innerHTML = "Server Online";
 
@@ -404,7 +404,7 @@ function tambahKeRiwayat(pasien, statusAkhir) {
     document.getElementById("riwayat-list").innerHTML = html;
 }
 
-/* UPDATE STATUS KE GOOGLE SHEETS (JSON FORMAT) */
+/* UPDATE STATUS KE GOOGLE SHEETS (JSON FORMAT DENGAN DATA PAYLOAD LENGKAP UNTUK DISPLAY) */
 async function updateStatus(aksi) {
     if (!pasienAktif) {
         showToast("Silakan pilih salah satu pasien di antrian terlebih dahulu.", "error");
@@ -415,7 +415,13 @@ async function updateStatus(aksi) {
     try {
         const dataKirim = {
             aksi: aksi,
-            row: pasienAktif.row
+            row: pasienAktif.row,
+            sapaan: pasienAktif.sapaan || "",
+            nama: pasienAktif.nama || "",
+            desa: pasienAktif.desa || "",
+            klaster: pasienAktif.klaster || "",
+            nokartu: pasienAktif.nokartu || "",
+            bayar: pasienAktif.bayar || ""
         };
 
         const res = await fetch(API_URL, { 
