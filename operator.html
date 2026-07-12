@@ -1,231 +1,429 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>Operator SAPA Bogorejo</title>
-<style>
-*{ margin:0; padding:0; box-sizing:border-box; font-family:'Segoe UI',sans-serif; }
-body{ background:#eef4f8; height:100vh; overflow:hidden; }
-header{ height:70px; background:#0f766e; display:flex; justify-content:space-between; align-items:center; padding:0 25px; color:white; box-shadow:0 5px 20px rgba(0,0,0,.15); }
-header h1{ font-size:30px; font-weight:bold; }
-#jam{ font-size:18px; }
-.container{ display:grid; grid-template-columns:340px 1fr 330px; height:calc(100vh - 70px); }
-.left{ background:white; padding:20px; overflow:auto; border-right:1px solid #ddd; }
-.left h2{ margin-bottom:20px; color:#0f172a; }
-#jumlah{ color:#16a34a; font-weight:bold; }
-.antrian{ padding:16px; background:#f8fafc; border-radius:15px; margin-bottom:12px; cursor:pointer; transition:.25s; border:2px solid transparent; }
-.antrian:hover{ background:#dcfce7; border-color:#22c55e; }
-.antrian.active{ background:#16a34a; color:white; }
-.center{ display:flex; justify-content:center; align-items:center; padding:30px; }
-.card{ width:100%; max-width:720px; background:white; padding:35px; border-radius:25px; box-shadow:0 10px 30px rgba(0,0,0,.15); }
-.status{ display:inline-block; padding:10px 25px; background:#64748b; color:white; border-radius:50px; font-size:18px; margin-bottom:20px; text-transform:uppercase; font-weight:bold; }
-.status.dipanggil { background: #16a34a; }
-#nama{ font-size:48px; font-weight:bold; margin-bottom:10px; color:#0f172a; }
-#desa{ font-size:28px; color:#64748b; margin-bottom:25px; }
-.info{ width:100%; border-collapse:collapse; }
-.info td{ padding:12px; font-size:19px; border-bottom:1px solid #eee; }
-.info td:first-child{ width:170px; font-weight:bold; color:#475569; }
-.right{ background:white; padding:20px; overflow:auto; border-left:1px solid #ddd; }
-.right h2{ margin-bottom:15px; color:#0f172a; }
-.btn{ width:100%; padding:15px; margin-bottom:12px; border:none; border-radius:14px; font-size:18px; font-weight:bold; cursor:pointer; color:white; transition:.2s; display:block; text-align:center; }
-.btn:hover:not(:disabled){ transform:scale(1.02); filter:brightness(1.1); }
-.btn:disabled{ opacity:0.5; cursor:not-allowed; }
-.next{background:#16a34a;} .repeat{background:#2563eb;} .done{background:#f59e0b;} .skip{background:#dc2626;}
-.lab{background:#7c3aed;} .apotek{background:#0891b2;} .gizi{background:#14b8a6;} .imunisasi{background:#0284c7;}
-.kia{background:#ec4899;} .mtbs{background:#9333ea;} .pm{background:#ea580c;} .poned{background:#475569;}
-.gigi{background:#be123c;} .konseling{background:#6366f1;}
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Operator SAPA Bogorejo - Premium Edition</title>
+    <style>
+        /* ========================================================
+           1. VARIABLE & RESET STYLE (Pusat Pengaturan Warna & Font)
+           ======================================================== */
+        :root {
+            --bg-main: #f1f5f9;
+            --bg-card: #ffffff;
+            --teal-dark: #0f766e;
+            --teal-light: #14b8a6;
+            --text-dark: #0f172a;
+            --text-muted: #64748b;
+            
+            /* Warna Status & Tombol */
+            --color-success: #16a34a;
+            --color-primary: #2563eb;
+            --color-warning: #ea580c;
+            --color-danger: #dc2626;
+            --border-color: #e2e8f0;
+        }
+
+        * { 
+            margin: 0; 
+            padding: 0; 
+            box-sizing: border-box; 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+        }
+
+        body { 
+            background: var(--bg-main); 
+            height: 100vh; 
+            overflow: hidden; 
+            color: var(--text-dark);
+        }
+
+        /* ========================================================
+           2. LAYOUT UTAMA (Header & Grid Kontainer)
+           ======================================================== */
+        header { 
+            height: 70px; 
+            background: linear-gradient(135deg, var(--teal-dark), #115e59); 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            padding: 0 25px; 
+            color: white; 
+            box-shadow: 0 4px 12px rgba(0,0,0,.1); 
+        }
+        
+        header h1 { font-size: 24px; font-weight: 700; display: flex; align-items: center; gap: 10px; }
+        #jam { font-size: 16px; background: rgba(255,255,255,0.15); padding: 6px 14px; border-radius: 20px; font-weight: 500; }
+
+        .container { 
+            display: grid; 
+            grid-template-columns: 350px 1fr 350px; 
+            height: calc(100vh - 70px); 
+        }
+
+        /* Bagian Panel Kiri (Daftar Antrean) */
+        .panel-left { background: var(--bg-card); padding: 20px; overflow-y: auto; border-right: 1px solid var(--border-color); }
+        .panel-left h2 { font-size: 18px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; }
+        #jumlah { background: #dcfce7; color: var(--color-success); padding: 2px 10px; border-radius: 20px; font-size: 14px; font-weight: bold; }
+
+        /* Bagian Panel Tengah (Papan Informasi Pasien Aktif) */
+        .panel-center { display: flex; justify-content: center; align-items: center; padding: 30px; }
+        
+        /* Bagian Panel Kanan (Tombol Kendali Mandiri & Rujukan) */
+        .panel-right { background: var(--bg-card); padding: 20px; overflow-y: auto; border-left: 1px solid var(--border-color); }
+        .panel-right h2 { font-size: 16px; margin-bottom: 15px; padding-bottom: 5px; border-bottom: 2px solid var(--teal-dark); color: var(--text-dark); }
+
+        /* ========================================================
+           3. KOMPONEN VISUAL (Card, List Item, Tombol)
+           ======================================================== */
+        /* Komponen Antrean di List Kiri */
+        .antrian-item { 
+            padding: 14px; 
+            background: #f8fafc; 
+            border-radius: 12px; 
+            margin-bottom: 10px; 
+            cursor: pointer; 
+            transition: all .2s ease; 
+            border: 1px solid var(--border-color); 
+            border-left: 4px solid var(--text-muted);
+        }
+        .antrian-item:hover { background: #f1f5f9; transform: translateY(-2px); }
+        .antrian-item.active { background: #e0f2fe; border-color: #bae6fd; border-left-color: var(--color-primary); color: #0369a1; }
+
+        /* Card Utama di Tengah */
+        .main-card { 
+            width: 100%; 
+            max-width: 680px; 
+            background: var(--bg-card); 
+            padding: 40px; 
+            border-radius: 20px; 
+            box-shadow: 0 10px 25px rgba(0,0,0,.05); 
+            border: 1px solid var(--border-color);
+            text-align: center;
+        }
+
+        /* Badge Status Pasien */
+        .status-badge { 
+            display: inline-block; 
+            padding: 6px 20px; 
+            background: #h1h5f9; 
+            color: var(--text-muted); 
+            border-radius: 50px; 
+            font-size: 14px; 
+            margin-bottom: 20px; 
+            font-weight: bold; 
+            letter-spacing: 1px;
+        }
+        .status-badge.menunggu-klaster { background: #fef3c7; color: #d97706; }
+        .status-badge.dipanggil { background: #dcfce7; color: var(--color-success); animation: pulse 2s infinite; }
+
+        #nama-pasien { font-size: 42px; font-weight: 800; margin-bottom: 5px; color: var(--text-dark); }
+        #desa-pasien { font-size: 22px; color: var(--text-muted); margin-bottom: 30px; }
+
+        /* Tabel Detail Informasi Pasien */
+        .table-info { width: 100%; border-collapse: collapse; text-align: left; }
+        .table-info td { padding: 12px 8px; font-size: 16px; border-bottom: 1px solid #f1f5f9; }
+        .table-info td:first-child { width: 150px; font-weight: 600; color: var(--text-muted); }
+
+        /* Desain Struktur Tombol Kanan */
+        .btn { 
+            width: 100%; 
+            padding: 14px; 
+            margin-bottom: 10px; 
+            border: none; 
+            border-radius: 12px; 
+            font-size: 16px; 
+            font-weight: 600; 
+            cursor: pointer; 
+            color: white; 
+            transition: all .2s; 
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        .btn:hover:not(:disabled) { transform: translateY(-1px); filter: brightness(1.05); box-shadow: 0 4px 10px rgba(0,0,0,0.08); }
+        .btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+        /* Spefisik Warna Tombol Utama */
+        .btn-next { background: var(--color-success); }
+        .btn-repeat { background: var(--color-primary); }
+        .btn-done { background: var(--color-warning); }
+        .btn-skip { background: var(--color-danger); }
+
+        /* Grid Khusus Untuk Tombol Rujukan Internal */
+        .rujuk-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 15px; }
+        .rujuk-grid .btn { padding: 12px 8px; font-size: 13px; margin-bottom: 0; border-radius: 8px; }
+
+        /* Palet Warna Tombol Rujukan */
+        .b-lab { background: #7c3aed; }     .b-apt { background: #0891b2; }
+        .b-gzi { background: #14b8a6; }     .b-imu { background: #0284c7; }
+        .b-kia { background: #ec4899; }     .b-mtb { background: #9333ea; }
+        .b-pm { background: #ea580c; }      .b-pnd { background: #475569; }
+        .b-ggi { background: #be123c; }     .b-ksl { background: #6366f1; }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.03); }
+            100% { transform: scale(1); }
+        }
+    </style>
 </head>
 <body>
 
 <header>
-<h1 id="judul">🏥 SAPA BOGOREJO</h1>
-<div id="jam">00:00:00</div>
+    <h1 id="judul-halaman">🏥 SAPA BOGOREJO</h1>
+    <div id="jam">Memuat Waktu...</div>
 </header>
 
 <div class="container">
-    <div class="left">
-        <h2>Daftar Antrian (<span id="jumlah">0</span>)</h2>
-        <div id="list">Memuat data...</div>
+    <div class="panel-left">
+        <h2>Daftar Antrian <span id="jumlah">0</span></h2>
+        <div id="list-antrian-box">Memuat data antrian...</div>
     </div>
-    <div class="center">
-        <div class="card">
-            <div class="status" id="badge-status">OFFLINE</div>
-            <div id="nama">BELUM ADA PASIEN</div>
-            <div id="desa">-</div>
-            <table class="info">
-                <tr><td>ID</td><td id="id">-</td></tr>
-                <tr><td>Keluhan</td><td id="keluhan">-</td></tr>
-                <tr><td>Klaster</td><td id="klaster">-</td></tr>
-                <tr><td>Status</td><td id="status">-</td></tr>
+
+    <div class="panel-center">
+        <div class="main-card">
+            <div class="status-badge" id="badge-status">OFFLINE</div>
+            <div id="nama-pasien">BELUM ADA PASIEN</div>
+            <div id="desa-pasien">Silakan pilih atau panggil pasien di antrean</div>
+            
+            <table class="table-info">
+                <tr><td>ID Pasien</td><td id="info-id">-</td></tr>
+                <tr><td>No. BPJS / RM</td><td id="info-kartu">-</td></tr>
+                <tr><td>Umur Pasien</td><td id="info-umur">-</td></tr>
+                <tr><td>Pembayaran</td><td id="info-bayar">-</td></tr>
+                <tr><td>Keluhan Utama</td><td id="info-keluhan">-</td></tr>
+                <tr><td>Alur Rujukan</td><td id="info-riwayat">-</td></tr>
             </table>
         </div>
     </div>
-    <div class="right">
-        <h2>Aksi</h2>
-        <button class="btn next action-btn">▶ Panggil Berikutnya</button>
-        <button class="btn repeat action-btn">🔁 Panggil Ulang</button>
-        <button class="btn done action-btn">✅ Selesai</button>
-        <button class="btn skip action-btn">❌ Tidak Hadir</button>
-        <hr style="margin:20px 0">
-        <h2>Rujuk Internal</h2>
-        <button class="btn lab action-btn">🧪 Laboratorium</button>
-        <button class="btn apotek action-btn">💊 Apotek</button>
-        <button class="btn gizi action-btn">🥗 Gizi</button>
-        <button class="btn imunisasi action-btn">💉 Imunisasi</button>
-        <button class="btn kia action-btn">👩 KIA</button>
-        <button class="btn mtbs action-btn">👦 MTBS</button>
-        <button class="btn pm action-btn">🦠 Penyakit Menular</button>
-        <button class="btn poned action-btn">🚑 PONED</button>
-        <button class="btn gigi action-btn">🦷 Gigi</button>
-        <button class="btn konseling action-btn">🗣 Konseling</button>
+
+    <div class="panel-right">
+        <h2>Kendali Utama</h2>
+        <button class="btn btn-next tombol-aksi" onclick="panggilBerikutnya()">▶ Panggil Berikutnya</button>
+        <button class="btn btn-repeat tombol-aksi" onclick="putarSuaraPanggilan()">🔁 Panggil Ulang Suara</button>
+        <button class="btn btn-done tombol-aksi" onclick="eksekusiAksi('selesai')">✅ Selesai Periksa</button>
+        <button class="btn btn-skip tombol-aksi" onclick="eksekusiAksi('lewati')">❌ Tidak Hadir / Lewati</button>
+        
+        <div style="margin: 25px 0 15px 0;"></div>
+        
+        <h2>Rujuk Layanan Internal</h2>
+        <div class="rujuk-grid">
+            <button class="btn b-lab tombol-aksi" onclick="eksekusiRujuk('Laboratorium')">🧪 Lab</button>
+            <button class="btn b-apt tombol-aksi" onclick="eksekusiRujuk('Apotek')">💊 Apotek</button>
+            <button class="btn b-gzi tombol-aksi" onclick="eksekusiRujuk('Gizi')">🥗 Gizi</button>
+            <button class="btn b-imu tombol-aksi" onclick="eksekusiRujuk('Imunisasi')">💉 Imunisasi</button>
+            <button class="btn b-kia tombol-aksi" onclick="eksekusiRujuk('Klaster II Ibu dan Anak (KIA)')">👩 KIA</button>
+            <button class="btn b-mtb tombol-aksi" onclick="eksekusiRujuk('Klaster II Anak dan Remaja (MTBS)')">👦 MTBS</button>
+            <button class="btn b-pm tombol-aksi" onclick="eksekusiRujuk('Klaster IV Penyakit Menular')">🦠 P. Menular</button>
+            <button class="btn b-pnd tombol-aksi" onclick="eksekusiRujuk('PONED')">🚑 PONED</button>
+            <button class="btn b-ggi tombol-aksi" onclick="eksekusiRujuk('Lintas Klaster (Gigi dan Mulut)')">🦷 Gigi</button>
+            <button class="btn b-ksl tombol-aksi" onclick="eksekusiRujuk('Konseling')">🗣 Konseling</button>
+        </div>
     </div>
 </div>
 
 <script>
-const API_URL="https://script.google.com/macros/s/AKfycbxSFFxGYPz_3DwQpnRWmiRcxqYbgjMFy1x-obXWCm7SiyedfxjdzCGJovtpDhFeZaRr/exec";
-const params=new URLSearchParams(window.location.search);
-const KLASTER=params.get("klaster") || "Klaster 3 Dewasa dan Lansia";
-document.getElementById("judul").innerHTML="🏥 SAPA BOGOREJO - "+KLASTER;
+    // Konfigurasi Utama Aplikasi
+    const API_URL = "https://script.google.com/macros/s/AKfycbxSFFxGYPz_3DwQpnRWmiRcxqYbgjMFy1x-obXWCm7SiyedfxjdzCGJovtpDhFeZaRr/exec";
+    const params = new URLSearchParams(window.location.search);
+    const KLASTER = params.get("klaster") || "Klaster 3 Dewasa dan Lansia";
+    
+    // Sinkronisasi Nama Judul Halaman
+    document.getElementById("judul-halaman").innerHTML = "🏥 SAPA OPERATOR - " + KLASTER;
 
-let dataAntrianLokal = []; let pasienAktif=null; let sedangProses = false;
+    // State Data Aplikasi Lokal
+    let dataAntrianMaster = []; 
+    let pasienAktif = null; 
+    let statusSedangMemuat = false;
 
-function updateJam(){ const now=new Date(); document.getElementById("jam").innerHTML=now.toLocaleDateString("id-ID")+" "+now.toLocaleTimeString("id-ID"); }
-updateJam(); setInterval(updateJam,1000);
+    // --- FUNGSI CLOCK & TIME ---
+    function jalankanJam(){ 
+        const kini = new Date(); 
+        document.getElementById("jam").innerHTML = kini.toLocaleDateString("id-ID", {weekday: 'long', day: 'numeric', month: 'long'}) + " | " + kini.toLocaleTimeString("id-ID"); 
+    }
+    jalankanJam(); 
+    setInterval(jalankanJam, 1000);
 
-function setGlobalLoading(isLoading) { sedangProses = isLoading; document.querySelectorAll(".action-btn").forEach(btn => btn.disabled = isLoading); }
+    // --- FUNGSI PENGUNCI TOMBOL (LOADING STATE) ---
+    function setLoadingMode(kondisiLoading) {
+        statusSedangMemuat = kondisiLoading;
+        document.querySelectorAll(".tombol-aksi").forEach(tombol => tombol.disabled = kondisiLoading);
+    }
 
-async function loadData(){
-    if(sedangProses) return;
-    try{
-        const res=await fetch(API_URL); const data=await res.json(); dataAntrianLokal = data;
-        const list=data.filter(item=>item.klaster===KLASTER && item.status==="Menunggu Klaster");
-        document.getElementById("jumlah").innerHTML=list.length;
-        let html="";
-        list.forEach(item=>{
-            const isActive = pasienAktif && pasienAktif.row === item.row ? "active" : "";
-            html+=`<div class="antrian ${isActive}" data-row="${item.row}" onclick="pilih(${item.row})"><b>${item.sapaan} ${item.nama}</b><br><small>Desa ${item.desa}</small></div>`;
-        });
-        if(html==="") html="<center><br>Tidak ada antrian.</center>";
-        document.getElementById("list").innerHTML=html;
-        if(pasienAktif){ const target = data.find(x => x.row == pasienAktif.row); if(target) { pasienAktif = target; tampilkanDetailPasien(); } }
-    }catch(err){ console.error(err); }
-}
-
-function pilih(row){
-    if(sedangProses) return; const target = dataAntrianLokal.find(x => x.row == row); if(!target) return;
-    pasienAktif=target; tampilkanDetailPasien();
-    document.querySelectorAll(".antrian").forEach(x=>x.classList.remove("active"));
-    const currentEl = document.querySelector(`.antrian[data-row='${row}']`); if(currentEl) currentEl.classList.add("active");
-}
-
-function tampilkanDetailPasien(){
-    if(!pasienAktif) return;
-    document.getElementById("id").innerHTML=pasienAktif.id; document.getElementById("nama").innerHTML=pasienAktif.sapaan+" "+pasienAktif.nama;
-    document.getElementById("desa").innerHTML="Desa "+pasienAktif.desa; document.getElementById("keluhan").innerHTML=pasienAktif.keluhan || "-";
-    document.getElementById("klaster").innerHTML=pasienAktif.klaster; document.getElementById("status").innerHTML=pasienAktif.status;
-    const badge = document.getElementById("badge-status"); badge.innerText = pasienAktif.status; badge.className = "status " + pasienAktif.status.toLowerCase().replace(" ", "-");
-}
-
-function bersihkanPanel(){
-    pasienAktif=null; document.getElementById("id").innerHTML="-"; document.getElementById("nama").innerHTML="BELUM ADA PASIEN";
-    document.getElementById("desa").innerHTML="-"; document.getElementById("keluhan").innerHTML="-"; document.getElementById("klaster").innerHTML="-";
-    document.getElementById("status").innerHTML="-"; const badge = document.getElementById("badge-status"); badge.innerText = "OFFLINE"; badge.className = "status";
-    document.querySelectorAll(".antrian").forEach(x=>x.classList.remove("active"));
-}
-
-/* =========================================
-   PERBAIKAN: Fungsi updateStatus menggunakan JSON
-   ========================================= */
-async function updateStatus(aksi){
-    if(!pasienAktif){ alert("Silakan pilih pasien terlebih dahulu."); return; }
-    setGlobalLoading(true);
-    try {
-        const payload = {
-            aksi: aksi,
-            row: pasienAktif.row
-        };
-        
-        await fetch(API_URL,{ 
-            method:"POST", 
-            headers: { "Content-Type": "text/plain;charset=utf-8" }, 
-            body: JSON.stringify(payload) 
-        });
-        
-        if(aksi === "selesai" || aksi === "lewati") { 
-            bersihkanPanel(); 
-        } else if(aksi === "panggil") { 
-            pasienAktif.status = "Dipanggil"; 
-            tampilkanDetailPasien(); 
+    // --- AMBIL DATA DARI CLOUD (GET) ---
+    async function dapatkanDataAntrianCloud(){
+        if(statusSedangMemuat) return;
+        try {
+            const respon = await fetch(API_URL);
+            dataAntrianMaster = await respon.json();
+            
+            // Filter pasien yang sesuai Klaster saat ini dan berstatus "Menunggu Klaster"
+            const listTunggu = dataAntrianMaster.filter(item => item.klaster === KLASTER && item.status === "Menunggu Klaster");
+            document.getElementById("jumlah").innerHTML = listTunggu.length;
+            
+            let susunanHtml = "";
+            listTunggu.forEach(item => {
+                const kelasAktif = (pasienAktif && pasienAktif.row === item.row) ? "active" : "";
+                susunanHtml += `
+                    <div class="antrian-item ${kelasAktif}" data-row="${item.row}" onclick="pilihPasienSecaraManual(${item.row})">
+                        <strong>${item.sapaan} ${item.nama}</strong> (${item.umur} Thn)<br>
+                        <small style="color:var(--text-muted)">📍 Desa ${item.desa} | 💳 ${item.bayar}</small>
+                    </div>`;
+            });
+            
+            if(susunanHtml === "") susunanHtml = "<div style='text-align:center;color:var(--text-muted);padding-top:20px;'>Tidak ada antrean hari ini.</div>";
+            document.getElementById("list-antrian-box").innerHTML = susunanHtml;
+            
+            // Jika ada pasien yang sedang aktif dibuka, perbarui informasinya secara real-time
+            if(pasienAktif){
+                const dataTerbaruPasien = dataAntrianMaster.find(x => x.row == pasienAktif.row);
+                if(dataTerbaruPasien) {
+                    pasienAktif = dataTerbaruPasien;
+                    gantiTampilanDetailPasien();
+                }
+            }
+        } catch(error) {
+            console.error("Gagal memuat antrean:", error);
         }
-    } catch(err) { 
-        alert("Gagal memperbarui status."); 
-    } finally { 
-        setGlobalLoading(false); 
-        await loadData(); 
     }
-}
 
-function suara(){
-    if(!pasienAktif) return; speechSynthesis.cancel();
-    let teks = `${pasienAktif.sapaan} ${pasienAktif.nama} dari Desa ${pasienAktif.desa} dipersilakan menuju ruang ${pasienAktif.klaster}`;
-    let u = new SpeechSynthesisUtterance(teks); u.lang = "id-ID"; u.rate = 0.85; u.pitch = 1; speechSynthesis.speak(u);
-}
-
-/* =========================================
-   PERBAIKAN: Fungsi rujuk menggunakan JSON
-   ========================================= */
-async function rujuk(klasterBaru){
-    if(!pasienAktif){ alert("Pilih pasien terlebih dahulu."); return; }
-    setGlobalLoading(true);
-    try {
-        const payload = {
-            aksi: "pindah_klaster",
-            row: pasienAktif.row,
-            klaster: klasterBaru
-        };
-
-        await fetch(API_URL,{ 
-            method:"POST", 
-            headers: { "Content-Type": "text/plain;charset=utf-8" }, 
-            body: JSON.stringify(payload) 
-        });
+    // --- PILIH PASIEN DARI LIST ---
+    function pilihPasienSecaraManual(nomorBaris){
+        if(statusSedangMemuat) return;
+        const targetPasien = dataAntrianMaster.find(x => x.row == nomorBaris);
+        if(!targetPasien) return;
         
-        alert(`${pasienAktif.sapaan} ${pasienAktif.nama} berhasil dipindahkan ke ${klasterBaru}`);
-        bersihkanPanel();
-    } catch(err) { 
-        alert("Gagal merujuk pasien."); 
-    } finally { 
-        setGlobalLoading(false); 
-        await loadData(); 
+        pasienAktif = targetPasien;
+        gantiTampilanDetailPasien();
+        
+        document.querySelectorAll(".antrian-item").forEach(el => el.classList.remove("active"));
+        const elemenTerpilih = document.querySelector(`.antrian-item[data-row='${nomorBaris}']`);
+        if(elemenTerpilih) elemenTerpilih.classList.add("active");
     }
-}
 
-document.querySelector(".next").onclick = async()=>{
-    if(dataAntrianLokal.length > 0 && !pasienAktif) {
-        const listTunggu = dataAntrianLokal.filter(item=>item.klaster===KLASTER && item.status==="Menunggu Klaster");
-        if(listTunggu.length > 0) pilih(listTunggu[0].row);
+    // --- UPDATE UI DETAIL PASIEN ---
+    function gantiTampilanDetailPasien(){
+        if(!pasienAktif) return;
+        document.getElementById("info-id").innerHTML = pasienAktif.id;
+        document.getElementById("nama-pasien").innerHTML = pasienAktif.sapaan + " " + pasienAktif.nama;
+        document.getElementById("desa-pasien").innerHTML = "Desa " + pasienAktif.desa;
+        document.getElementById("info-kartu").innerHTML = pasienAktif.nokartu || "Tidak Ada (Umum)";
+        document.getElementById("info-umur").innerHTML = pasienAktif.umur + " Tahun";
+        document.getElementById("info-bayar").innerHTML = pasienAktif.bayar;
+        document.getElementById("info-keluhan").innerHTML = pasienAktif.keluhan || "-";
+        document.getElementById("info-riwayat").innerHTML = pasienAktif.riwayat || "Pendaftaran";
+        
+        // Atur warna dan tulisan badge status secara dinamis
+        const badgeStatus = document.getElementById("badge-status");
+        badgeStatus.innerText = pasienAktif.status.toUpperCase();
+        badgeStatus.className = "status-badge " + pasienAktif.status.toLowerCase().replace(/ /g, "-");
     }
-    await updateStatus("panggil"); suara();
-};
-document.querySelector(".repeat").onclick = ()=>{ suara(); };
-document.querySelector(".done").onclick = async()=>{ await updateStatus("selesai"); };
-document.querySelector(".skip").onclick = async()=>{ await updateStatus("lewati"); };
 
-document.querySelector(".lab").onclick=()=>rujuk("Laboratorium");
-document.querySelector(".apotek").onclick=()=>rujuk("Apotek");
-document.querySelector(".gizi").onclick=()=>rujuk("Gizi");
-document.querySelector(".imunisasi").onclick=()=>rujuk("Imunisasi");
-document.querySelector(".kia").onclick=()=>rujuk("Klaster II Ibu dan Anak (KIA)");
-document.querySelector(".mtbs").onclick=()=>rujuk("Klaster II Anak dan Remaja (MTBS)");
-document.querySelector(".pm").onclick=()=>rujuk("Klaster IV Penyakit Menular");
-document.querySelector(".poned").onclick=()=>rujuk("PONED");
-document.querySelector(".gigi").onclick=()=>rujuk("Lintas Klaster (Gigi dan Mulut)");
-document.querySelector(".konseling").onclick=()=>rujuk("Konseling");
+    // --- RESET TAMPILAN JADI KOSONG ---
+    function bersihkanPapanInformasi(){
+        pasienAktif = null;
+        document.getElementById("info-id").innerHTML = "-";
+        document.getElementById("nama-pasien").innerHTML = "BELUM ADA PASIEN";
+        document.getElementById("desa-pasien").innerHTML = "Silakan pilih atau panggil pasien di antrean";
+        document.getElementById("info-kartu").innerHTML = "-";
+        document.getElementById("info-umur").innerHTML = "-";
+        document.getElementById("info-bayar").innerHTML = "-";
+        document.getElementById("info-keluhan").innerHTML = "-";
+        document.getElementById("info-riwayat").innerHTML = "-";
+        
+        const badgeStatus = document.getElementById("badge-status");
+        badgeStatus.innerText = "OFFLINE";
+        badgeStatus.className = "status-badge";
+        document.querySelectorAll(".antrian-item").forEach(el => el.classList.remove("active"));
+    }
 
-loadData(); setInterval(loadData,4000);
-setInterval(()=>{ let n=document.getElementById("nama"); if(pasienAktif) { n.style.transition=".2s"; n.style.transform="scale(1.02)"; setTimeout(()=>{ n.style.transform="scale(1)"; },250); } },5000);
+    // --- PANGGIL BERIKUTNYA (OTOMATIS CARI YANG URUTAN TERATAS) ---
+    async function panggilBerikutnya() {
+        const listTungguTersisa = dataAntrianMaster.filter(item => item.klaster === KLASTER && item.status === "Menunggu Klaster");
+        if(listTungguTersisa.length > 0 && !pasienAktif) {
+            pilihPasienSecaraManual(listTungguTersisa[0].row);
+        }
+        await eksekusiAksi("panggil");
+        putarSuaraPanggilan();
+    }
+
+    // --- AKSI UTAMA: PANGGIL, SELESAI, LEWATI (KIRIM JSON POST) ---
+    async function eksekusiAksi(namaAksi){
+        if(!pasienAktif){ alert("Silakan pilih pasien di daftar antrean terlebih dahulu."); return; }
+        setLoadingMode(true);
+        try {
+            // PERBAIKAN: Format data dibungkus dalam Objek JSON murni
+            const payload = {
+                aksi: namaAksi,
+                row: pasienAktif.row
+            };
+            
+            await fetch(API_URL, { 
+                method: "POST", 
+                headers: { "Content-Type": "text/plain;charset=utf-8" }, 
+                body: JSON.stringify(payload) 
+            });
+            
+            if(namaAksi === "selesai" || namaAksi === "lewati") { 
+                bersihkanPapanInformasi(); 
+            } else if(namaAksi === "panggil") { 
+                pasienAktif.status = "Dipanggil"; 
+                gantiTampilanDetailPasien(); 
+            }
+        } catch(err) { 
+            alert("Gagal memperbarui status ke server cloud."); 
+        } finally { 
+            setLoadingMode(false); 
+            await dapatkanDataAntrianCloud(); 
+        }
+    }
+
+    // --- AKSI RUJUK INTERNAL (KIRIM JSON POST) ---
+    async function eksekusiRujuk(tujuanKlasterBaru){
+        if(!pasienAktif){ alert("Silakan tentukan pasien yang ingin dirujuk."); return; }
+        setLoadingMode(true);
+        try {
+            // PERBAIKAN: Format data rujukan dibungkus dalam Objek JSON murni
+            const payload = {
+                aksi: "pindah_klaster",
+                row: pasienAktif.row,
+                klaster: tujuanKlasterBaru
+            };
+
+            await fetch(API_URL, { 
+                method: "POST", 
+                headers: { "Content-Type": "text/plain;charset=utf-8" }, 
+                body: JSON.stringify(payload) 
+            });
+            
+            alert(`Sukses! ${pasienAktif.sapaan} ${pasienAktif.nama} berhasil dirujuk internal ke: ${tujuanKlasterBaru}`);
+            bersihkanPapanInformasi();
+        } catch(err) { 
+            alert("Gagal mengirimkan rujukan pasien."); 
+        } finally { 
+            setLoadingMode(false); 
+            await dapatkanDataAntrianCloud(); 
+        }
+    }
+
+    // --- SOUND ENGINE (SUARA PANGGILAN) ---
+    function putarSuaraPanggilan(){
+        if(!pasienAktif) return; 
+        speechSynthesis.cancel(); // Menghentikan suara antrean sebelumnya jika ada
+        
+        let kalimatPanggilan = `${pasienAktif.sapaan} ${pasienAktif.nama}, alamat Desa ${pasienAktif.desa}, silakan menuju ke ruang ${pasienAktif.klaster}`;
+        let mesinSuara = new SpeechSynthesisUtterance(kalimatPanggilan); 
+        mesinSuara.lang = "id-ID"; 
+        mesinSuara.rate = 0.85; 
+        mesinSuara.pitch = 1; 
+        speechSynthesis.speak(mesinSuara);
+    }
+
+    // --- TIMING AUTOMATION SYSTEM ---
+    dapatkanDataAntrianCloud(); 
+    setInterval(dapatkanDataAntrianCloud, 4000); // Sinkronisasi otomatis dari cloud setiap 4 detik
 </script>
 </body>
 </html>
